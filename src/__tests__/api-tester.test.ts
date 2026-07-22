@@ -60,7 +60,8 @@ describe('Agency API Tester: Comprehensive Integration Test Suite', () => {
 
     it('should reject Clerk role from accessing Admin-restricted route (403 Forbidden)', async () => {
       const res = await request(app)
-        .get('/api/users')
+        .post('/api/users')
+        .send({ username: 'testuser' })
         .set('Authorization', `Bearer ${clerkToken}`);
       
       expect(res.status).toBe(403);

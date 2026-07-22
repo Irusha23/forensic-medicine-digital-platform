@@ -37,3 +37,38 @@ export function verifyToken(token: string) {
     return null;
   }
 }
+
+export async function forgotPassword(email: string) {
+  const user = await prisma.users.findFirst({ where: { email } });
+  if (!user) return null; 
+  
+  const payload = { userId: user.user_id.toString(), purpose: 'reset-password' };
+  const secret = JWT_SECRET + user.password_hash;
+  const token = jwt.sign(payload, secret, { expiresIn: '15m' });
+  
+  return token;
+}
+
+export async function resetPassword(token: string, newPassword: string) {
+  const decoded = jwt.decode(token) as any;
+  if (!decoded || !decoded.userId || decoded.purpose !== 'reset-password') {
+    throw new Error('Invalid token');
+  }
+
+  const user = await prisma.users.findUnique({ where: { user_id: BigInt(decoded.userId) } });
+  if (!user) throw new Error('User not found');
+
+  const secret = JWT_SECRET + user.password_hash;
+  try {
+    jwt.verify(token, secret);
+  } catch(e) {
+    throw new Error('Invalid or expired token');
+  }
+
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await prisma.users.update({
+    where: { user_id: user.user_id },
+    data: { password_hash: hashed }
+  });
+  return true;
+}

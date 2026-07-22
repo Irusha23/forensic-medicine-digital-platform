@@ -12,8 +12,23 @@ export async function uploadDocument(req: RequestWithFile, res: Response) {
     const caseId = req.params.id || req.body.case_id;
     const documentType = req.body.document_type;
     const title = req.body.title;
+    const dateReceived = req.body.date_received;
+    const dateIssued = req.body.date_issued;
+    const issuingAuthority = req.body.issuing_authority;
+    const remarks = req.body.remarks;
     const uploaderId = req.user?.userId;
-    const out = await saveDocument({ tmpPath: file.path, originalName: file.originalname, caseId: caseId ? Number(caseId) : undefined, uploaderId: uploaderId ? Number(uploaderId) : undefined, documentType, title });
+    const out = await saveDocument({ 
+      tmpPath: file.path, 
+      originalName: file.originalname, 
+      caseId: caseId ? Number(caseId) : undefined, 
+      uploaderId: uploaderId ? Number(uploaderId) : undefined, 
+      documentType, 
+      title,
+      dateReceived,
+      dateIssued,
+      issuingAuthority,
+      remarks
+    });
     res.status(201).json({ ok: true, document: out.document, storage: out.storage });
   } catch (e: any) {
     console.error(e);

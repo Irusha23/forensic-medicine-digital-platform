@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { generateCaseReportPdf } from '../../services/report.service';
 import { validateCaseReadyForReport } from '../../services/case.service';
 import prisma from '../../lib/prisma';
+import { logAudit } from '../../services/audit.service';
 
 function toCaseId(value: string | number | bigint) {
   return typeof value === 'string' ? BigInt(value) : BigInt(value);
@@ -15,6 +16,12 @@ export async function generateReportController(req: Request, res: Response) {
     const pdfBuffer = Buffer.isBuffer(result.pdfBuffer)
       ? result.pdfBuffer
       : Buffer.from(result.pdfBuffer as any);
+      
+    // Log report download
+    const userId = req.user?.user_id;
+    if (userId) {
+      await logAudit(userId, 'REPORT_DOWNLOAD', 'report', result.report.report_id, { caseId: id, reportType }, req.ip);
+    }
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename="report.pdf"');

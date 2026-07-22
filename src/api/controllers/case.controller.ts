@@ -5,7 +5,18 @@ export async function listCaseController(req: Request, res: Response) {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 50;
-    const cases = await listCases(page, limit);
+    const filters = {
+      search: req.query.search as string,
+      nic: req.query.nic as string,
+      patient_name: req.query.patient_name as string,
+      police_station: req.query.police_station as string,
+      start_date: req.query.start_date as string,
+      end_date: req.query.end_date as string,
+      doctor_id: req.query.doctor_id as string,
+      report_type: req.query.report_type as string
+    };
+    
+    const cases = await listCases(page, limit, filters);
     const isClerk = req.user?.roles && req.user.roles.includes('Clerk') && !req.user.roles.includes('Doctor') && !req.user.roles.includes('Admin');
     
     if (isClerk) {

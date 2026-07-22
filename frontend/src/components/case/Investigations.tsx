@@ -11,7 +11,9 @@ export const Investigations = ({ caseId }: { caseId: string }) => {
     investigation_type: '', 
     status: 'PENDING',
     requested_date: '',
-    completed_date: ''
+    completed_date: '',
+    laboratory_name: '',
+    sample_details: ''
   });
 
   const fetchInvestigations = async () => {
@@ -39,7 +41,7 @@ export const Investigations = ({ caseId }: { caseId: string }) => {
         requested_date: newInv.requested_date || null,
         completed_date: newInv.completed_date || null
       });
-      setNewInv({ investigation_type: '', status: 'PENDING', requested_date: '', completed_date: '' });
+      setNewInv({ investigation_type: '', status: 'PENDING', requested_date: '', completed_date: '', laboratory_name: '', sample_details: '' });
       fetchInvestigations();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to create investigation');
@@ -111,6 +113,26 @@ export const Investigations = ({ caseId }: { caseId: string }) => {
                 className="w-full border border-gray-300 p-2 text-sm"
                 value={newInv.completed_date}
                 onChange={e => setNewInv({ ...newInv, completed_date: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block font-medium mb-1 text-sm">Laboratory Name</label>
+              <input
+                type="text"
+                placeholder="e.g. Govt Analyst Dept"
+                className="w-full border border-gray-300 p-2 text-sm"
+                value={newInv.laboratory_name}
+                onChange={e => setNewInv({ ...newInv, laboratory_name: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block font-medium mb-1 text-sm">Sample Details</label>
+              <input
+                type="text"
+                placeholder="e.g. Blood sample 5ml"
+                className="w-full border border-gray-300 p-2 text-sm"
+                value={newInv.sample_details}
+                onChange={e => setNewInv({ ...newInv, sample_details: e.target.value })}
               />
             </div>
           </div>

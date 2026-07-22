@@ -15,6 +15,14 @@ export async function getDashboardMetrics(req: Request, res: Response) {
       where: { is_deleted: false, status: 'CLOSED' }
     });
 
+    const pendingInvestigations = await prisma.investigation.count({
+      where: { status: 'PENDING' }
+    });
+
+    const pendingReports = await prisma.cases.count({
+      where: { is_deleted: false, report: { none: {} } }
+    });
+
     // Group by status
     const statusGroups = await prisma.cases.groupBy({
       by: ['status'],
@@ -38,7 +46,7 @@ export async function getDashboardMetrics(req: Request, res: Response) {
     }));
 
     res.json({
-      summary: { totalCases, openCases, closedCases },
+      summary: { totalCases, openCases, closedCases, pendingInvestigations, pendingReports },
       statusDistribution: statusGroups.map(g => ({ name: g.status, value: g._count.case_id })),
       typeDistribution: typeGroups.map(g => ({ name: g.type, value: g.count }))
     });

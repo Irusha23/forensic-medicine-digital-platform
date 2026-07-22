@@ -21,8 +21,10 @@ export const Layout = () => {
         </div>
         <nav className="flex-1 p-4 space-y-2">
           <Link to="/" className="block p-2 hover:bg-gray-800 rounded mb-4">Cases</Link>
-          <RequireRole roles={['Admin']}>
-            <Link to="/users" className="block p-2 hover:bg-gray-800 rounded mb-4">Users</Link>
+          <RequireRole roles={['Admin', 'Doctor', 'Clerk']}>
+            <Link to="/users" className="block p-2 hover:bg-gray-800 rounded mb-4">Users (Staff & Doctors)</Link>
+            <Link to="/police-stations" className="block p-2 hover:bg-gray-800 rounded mb-4">Police Stations</Link>
+            <Link to="/courts" className="block p-2 hover:bg-gray-800 rounded mb-4">Courts</Link>
           </RequireRole>
           <button onClick={handleLogout} className="w-full text-left p-2 hover:bg-gray-800 rounded mt-auto text-red-400">
             Logout

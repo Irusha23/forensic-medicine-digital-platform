@@ -5,12 +5,11 @@ import { authorize } from '../../middleware/rbac.middleware';
 
 const router = Router();
 
-// Protect ALL routes with Admin role
-router.use(authenticateJWT, authorize('Admin'));
+router.use(authenticateJWT);
 
-router.get('/', getUsersController);
-router.post('/', createUserController);
-router.patch('/:id/roles', updateUserRolesController);
-router.patch('/:id/status', toggleUserStatusController);
+router.get('/', authorize('Admin', 'Doctor', 'Clerk'), getUsersController);
+router.post('/', authorize('Admin'), createUserController);
+router.patch('/:id/roles', authorize('Admin'), updateUserRolesController);
+router.patch('/:id/status', authorize('Admin'), toggleUserStatusController);
 
 export default router;

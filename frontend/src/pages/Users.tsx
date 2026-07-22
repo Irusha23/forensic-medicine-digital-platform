@@ -2,7 +2,13 @@ import { useEffect, useState } from 'react';
 import api from '../api/client';
 import { UserFormModal } from '../components/users/UserFormModal';
 
+import { RequireRole } from '../components/layout/RequireRole';
+
+import { useAuth } from '../context/AuthContext';
+
 export const Users = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.roles?.includes('Admin');
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -36,12 +42,14 @@ export const Users = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">User Management Portal</h1>
-        <button 
-          onClick={() => setShowModal(true)} 
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          + Add New Staff
-        </button>
+        <RequireRole roles={['Admin']}>
+          <button 
+            onClick={() => setShowModal(true)} 
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            + Add New Staff
+          </button>
+        </RequireRole>
       </div>
 
       {error && <div className="text-red-600 mb-4">{error}</div>}
@@ -54,7 +62,7 @@ export const Users = () => {
               <th className="p-3 font-semibold text-gray-700">Name</th>
               <th className="p-3 font-semibold text-gray-700">Roles</th>
               <th className="p-3 font-semibold text-gray-700">Status</th>
-              <th className="p-3 font-semibold text-gray-700 text-right">Actions</th>
+              {isAdmin && <th className="p-3 font-semibold text-gray-700 text-right">Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -93,14 +101,16 @@ export const Users = () => {
                       </span>
                     )}
                   </td>
-                  <td className="p-3 text-right">
-                    <button 
-                      onClick={() => toggleStatus(u.user_id, u.is_active)}
-                      className={`text-xs px-2 py-1 border rounded ${u.is_active ? 'border-red-300 text-red-600 hover:bg-red-50' : 'border-green-300 text-green-600 hover:bg-green-50'}`}
-                    >
-                      {u.is_active ? 'Deactivate' : 'Activate'}
-                    </button>
-                  </td>
+                  {isAdmin && (
+                    <td className="p-3 text-right">
+                      <button 
+                        onClick={() => toggleStatus(u.user_id, u.is_active)}
+                        className={`text-xs px-2 py-1 border rounded ${u.is_active ? 'border-red-300 text-red-600 hover:bg-red-50' : 'border-green-300 text-green-600 hover:bg-green-50'}`}
+                      >
+                        {u.is_active ? 'Deactivate' : 'Activate'}
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))
             )}

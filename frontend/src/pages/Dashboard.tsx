@@ -7,33 +7,59 @@ export const Dashboard = () => {
   const [cases, setCases] = useState<any[]>([]);
   const [metrics, setMetrics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [caseTypes, setCaseTypes] = useState<string[]>([]);
 
-  // Filters
-  const [statusFilter, setStatusFilter] = useState<string>('ALL');
-  const [typeFilter, setTypeFilter] = useState<string>('ALL');
-  const [search, setSearch] = useState<string>('');
-  
-  const [caseTypes, setCaseTypes] = useState<any[]>([]);
+  // Advanced Filters
+  const [advFilters, setAdvFilters] = useState({
+    nic: '',
+    patient_name: '',
+    police_station: '',
+    start_date: '',
+    end_date: '',
+    status: 'ALL',
+    type: 'ALL',
+    doctor_id: '',
+    report_type: ''
+  });
+
+  const fetchCases = async (filters: any) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (filters.nic) params.append('nic', filters.nic);
+      if (filters.patient_name) params.append('patient_name', filters.patient_name);
+      if (filters.police_station) params.append('police_station', filters.police_station);
+      if (filters.start_date) params.append('start_date', filters.start_date);
+      if (filters.end_date) params.append('end_date', filters.end_date);
+      if (filters.doctor_id) params.append('doctor_id', filters.doctor_id);
+      if (filters.report_type) params.append('report_type', filters.report_type);
+      
+      const res = await api.get(`/cases?${params.toString()}`);
+      setCases(res.data.data || res.data);
+    } catch (err) {
+      console.error('Failed to fetch cases', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchMetrics = async () => {
       try {
-        const [resCases, resMetrics, resTypes] = await Promise.all([
-          api.get('/cases'),
-          api.get('/dashboard/metrics'),
-          api.get('/cases/statuses') // Using this generically or if there's a type endpoint. Actually we'll derive types from cases or a fixed list. Wait, there's no types endpoint yet?
-        ]);
-        // Handle paginated response { data, meta } or legacy array
-        setCases(resCases.data.data || resCases.data);
+        const resMetrics = await api.get('/dashboard/metrics');
         setMetrics(resMetrics.data);
       } catch (err) {
-        console.error('Failed to fetch dashboard data', err);
-      } finally {
-        setLoading(false);
+        console.error('Failed to fetch metrics', err);
       }
     };
-    fetchData();
+    fetchMetrics();
+    fetchCases(advFilters);
   }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchCases(advFilters);
+  };
 
   // Derive case types from the case list for the filter dropdown
   useEffect(() => {
@@ -44,10 +70,9 @@ export const Dashboard = () => {
   }, [cases]);
 
   const filteredCases = cases.filter(c => {
-    const matchStatus = statusFilter === 'ALL' || c.status === statusFilter;
-    const matchType = typeFilter === 'ALL' || c.case_type_lu?.label === typeFilter;
-    const matchSearch = search === '' || (c.case_number && c.case_number.toLowerCase().includes(search.toLowerCase()));
-    return matchStatus && matchType && matchSearch;
+    const matchStatus = advFilters.status === 'ALL' || c.status === advFilters.status;
+    const matchType = advFilters.type === 'ALL' || c.case_type_lu?.label === advFilters.type;
+    return matchStatus && matchType;
   });
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
@@ -65,7 +90,7 @@ export const Dashboard = () => {
 
       {/* Metric Cards */}
       {metrics && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="bg-white p-6 rounded shadow border-l-4 border-blue-500">
             <div className="text-gray-500 text-sm font-semibold uppercase">Total Cases</div>
             <div className="text-3xl font-bold mt-1">{metrics.summary.totalCases}</div>
@@ -77,6 +102,14 @@ export const Dashboard = () => {
           <div className="bg-white p-6 rounded shadow border-l-4 border-gray-500">
             <div className="text-gray-500 text-sm font-semibold uppercase">Closed Cases</div>
             <div className="text-3xl font-bold mt-1">{metrics.summary.closedCases}</div>
+          </div>
+          <div className="bg-white p-6 rounded shadow border-l-4 border-yellow-500">
+            <div className="text-gray-500 text-sm font-semibold uppercase text-xs">Pending Investigations</div>
+            <div className="text-3xl font-bold mt-1">{metrics.summary.pendingInvestigations || 0}</div>
+          </div>
+          <div className="bg-white p-6 rounded shadow border-l-4 border-red-500">
+            <div className="text-gray-500 text-sm font-semibold uppercase text-xs">Delayed Reports</div>
+            <div className="text-3xl font-bold mt-1">{metrics.summary.pendingReports || 0}</div>
           </div>
         </div>
       )}
@@ -124,23 +157,61 @@ export const Dashboard = () => {
       
       {/* Advanced Filtering & Table */}
       <div className="bg-white border border-gray-300 rounded shadow">
-        <div className="p-4 border-b border-gray-300 bg-gray-50 flex flex-wrap gap-4 items-center">
+        <form onSubmit={handleSearch} className="p-4 border-b border-gray-300 bg-gray-50 flex flex-wrap gap-4 items-end">
           <div>
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Search</label>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Patient Name</label>
             <input 
               type="text" 
-              placeholder="Case Number..." 
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="border border-gray-300 p-2 text-sm w-48 rounded"
+              placeholder="e.g. John Doe" 
+              value={advFilters.patient_name}
+              onChange={(e) => setAdvFilters(prev => ({ ...prev, patient_name: e.target.value }))}
+              className="border border-gray-300 p-2 text-sm w-40 rounded"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">NIC</label>
+            <input 
+              type="text" 
+              placeholder="e.g. 199923456789" 
+              value={advFilters.nic}
+              onChange={(e) => setAdvFilters(prev => ({ ...prev, nic: e.target.value }))}
+              className="border border-gray-300 p-2 text-sm w-32 rounded"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">Police Station</label>
+            <input 
+              type="text" 
+              placeholder="e.g. Colombo Central" 
+              value={advFilters.police_station}
+              onChange={(e) => setAdvFilters(prev => ({ ...prev, police_station: e.target.value }))}
+              className="border border-gray-300 p-2 text-sm w-40 rounded"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">From Date</label>
+            <input 
+              type="date" 
+              value={advFilters.start_date}
+              onChange={(e) => setAdvFilters(prev => ({ ...prev, start_date: e.target.value }))}
+              className="border border-gray-300 p-2 text-sm rounded"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">To Date</label>
+            <input 
+              type="date" 
+              value={advFilters.end_date}
+              onChange={(e) => setAdvFilters(prev => ({ ...prev, end_date: e.target.value }))}
+              className="border border-gray-300 p-2 text-sm rounded"
             />
           </div>
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">Status</label>
             <select 
-              value={statusFilter} 
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="border border-gray-300 p-2 text-sm rounded w-40"
+              value={advFilters.status} 
+              onChange={(e) => setAdvFilters(prev => ({ ...prev, status: e.target.value }))}
+              className="border border-gray-300 p-2 text-sm rounded w-32"
             >
               <option value="ALL">All Statuses</option>
               <option value="OPEN">Open</option>
@@ -151,9 +222,9 @@ export const Dashboard = () => {
           <div>
             <label className="block text-xs font-semibold text-gray-600 mb-1">Case Type</label>
             <select 
-              value={typeFilter} 
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="border border-gray-300 p-2 text-sm rounded w-40"
+              value={advFilters.type} 
+              onChange={(e) => setAdvFilters(prev => ({ ...prev, type: e.target.value }))}
+              className="border border-gray-300 p-2 text-sm rounded w-32"
             >
               <option value="ALL">All Types</option>
               {caseTypes.map(t => (
@@ -161,10 +232,13 @@ export const Dashboard = () => {
               ))}
             </select>
           </div>
-          <div className="ml-auto mt-4 text-sm text-gray-500 font-medium">
+          <button type="submit" className="bg-gray-800 text-white px-4 py-2 rounded text-sm hover:bg-gray-900 shadow">
+            Search
+          </button>
+          <div className="ml-auto text-sm text-gray-500 font-medium self-center">
             Showing {filteredCases.length} cases
           </div>
-        </div>
+        </form>
 
         <table className="w-full text-left border-collapse text-sm">
           <thead>

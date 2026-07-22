@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import prisma from '../lib/prisma';
 
-export async function saveDocument({ tmpPath, originalName, caseId, uploaderId, documentType, title }: { tmpPath: string; originalName: string; caseId?: number | bigint; uploaderId?: number | bigint; documentType?: string; title?: string }) {
+export async function saveDocument({ tmpPath, originalName, caseId, uploaderId, documentType, title, dateReceived, dateIssued, issuingAuthority, remarks }: { tmpPath: string; originalName: string; caseId?: number | bigint; uploaderId?: number | bigint; documentType?: string; title?: string; dateReceived?: string; dateIssued?: string; issuingAuthority?: string; remarks?: string }) {
   const ext = path.extname(originalName) || '';
   const y = new Date().getFullYear();
   const resolvedCaseId = caseId ? BigInt(caseId) : null;
@@ -17,7 +17,11 @@ export async function saveDocument({ tmpPath, originalName, caseId, uploaderId, 
     title: title || originalName,
     file_path: res.path,
     uploaded_by: uploaderId as any || null,
-    uploaded_at: new Date()
+    uploaded_at: new Date(),
+    date_received: dateReceived ? new Date(dateReceived) : null,
+    date_issued: dateIssued ? new Date(dateIssued) : null,
+    issuing_authority: issuingAuthority || null,
+    remarks: remarks || null
   }});
   return { document: doc, storage: res };
 }

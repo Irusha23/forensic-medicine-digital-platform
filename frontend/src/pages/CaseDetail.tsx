@@ -13,6 +13,7 @@ import { AuditTrail } from '../components/case/AuditTrail';
 import { ClinicalDetails } from '../components/case/ClinicalDetails';
 import { AutopsyIntake } from '../components/case/AutopsyIntake';
 import { CourtEvents } from '../components/case/CourtEvents';
+import { Evidence } from '../components/case/Evidence';
 import { IssueReportModal } from '../components/case/IssueReportModal';
 import { RequireRole } from '../components/layout/RequireRole';
 import { useAuth } from '../context/AuthContext';
@@ -91,7 +92,7 @@ export const CaseDetail = () => {
             }
             tabs.push('SUBJECTS', 'AUTHORIZATIONS');
             if (canViewMedical) tabs.push('FINDINGS', 'INVESTIGATIONS');
-            tabs.push('REFERRALS', 'MEDIA', 'COURT', 'AUDIT');
+            tabs.push('EVIDENCE', 'REFERRALS', 'MEDIA', 'COURT', 'AUDIT');
             return tabs;
           })().map(tab => (
             <button
@@ -112,6 +113,7 @@ export const CaseDetail = () => {
           {activeTab === 'AUTHORIZATIONS' && <Authorizations caseId={id!} />}
           {activeTab === 'FINDINGS' && <Findings caseId={id!} />}
           {activeTab === 'INVESTIGATIONS' && <Investigations caseId={id!} />}
+          {activeTab === 'EVIDENCE' && <Evidence caseId={id!} />}
           {activeTab === 'REFERRALS' && <Referrals caseId={id!} />}
           {activeTab === 'MEDIA' && <MediaGallery caseId={id!} />}
           {activeTab === 'COURT' && <CourtEvents caseId={id!} />}

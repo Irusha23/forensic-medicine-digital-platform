@@ -73,15 +73,19 @@ model cases {
   is_deleted           Boolean                @default(false)
   deleted_at           DateTime?              @db.Timestamp(0)
   version              Int                    @default(1)
+  patient_id           BigInt?
+  bht_number           String?                @db.VarChar(200)
   autopsy_case         autopsy_case?
   autopsy_details      autopsy_details?
   case_type_lu         case_type_lu?          @relation(fields: [case_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cases_ibfk_1")
   case_status_lu       case_status_lu?        @relation(fields: [case_status_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cases_ibfk_2")
   users                users?                 @relation(fields: [assigned_doctor_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "cases_ibfk_3")
   police_stations      police_stations?       @relation(fields: [police_station_id], references: [police_station_id], onDelete: NoAction, onUpdate: NoAction, map: "cases_ibfk_4")
+  patients             patients?              @relation(fields: [patient_id], references: [patient_id], onDelete: NoAction, onUpdate: NoAction)
   clinical_case        clinical_case?
   court_event          court_event[]
   documents            documents[]
+  evidence             evidence[]
   finding              finding[]
   investigation        investigation[]
   legal_authorizations legal_authorizations[]
@@ -90,7 +94,6 @@ model cases {
   referral             referral[]
   report               report[]
   review_visit         review_visit[]
-  subject              subject[]
 
   @@index([assigned_doctor_id], map: "assigned_doctor_id")
   @@index([case_status_id], map: "case_status_id")
@@ -174,6 +177,10 @@ model documents {
   title                String?                @db.VarChar(500)
   file_path            String?                @db.VarChar(2000)
   version              Int?                   @default(1)
+  date_received        DateTime?              @db.Date
+  date_issued          DateTime?              @db.Date
+  issuing_authority    String?                @db.VarChar(400)
+  remarks              String?                @db.Text
   uploaded_at          DateTime               @default(now()) @db.Timestamp(0)
   uploaded_by          BigInt?
   cases                cases?                 @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction, map: "documents_ibfk_1")
@@ -221,6 +228,8 @@ model investigation {
   status             String?    @db.VarChar(100)
   summary            String?    @db.Text
   results            String?    @db.Text
+  laboratory_name    String?    @db.VarChar(255)
+  sample_details     String?    @db.Text
   document_id        BigInt?
   cases              cases?     @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction, map: "investigation_ibfk_1")
   documents          documents? @relation(fields: [document_id], references: [document_id], onDelete: NoAction, onUpdate: NoAction, map: "investigation_ibfk_2")
@@ -344,6 +353,8 @@ model report {
   recipient_details         String?           @db.Text
   method_of_delivery        String?           @db.VarChar(200)
   certificate_of_receipt_id String?           @db.VarChar(255)
+  qr_code_hash              String?           @db.VarChar(255)
+  digital_signature         String?           @db.Text
   cases                     cases?            @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction, map: "report_ibfk_1")
   users                     users?            @relation(fields: [issued_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_2")
   documents                 documents?        @relation(fields: [document_id], references: [document_id], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_3")
@@ -387,20 +398,40 @@ model roles {
   user_role   user_role[]
 }
 
-model subject {
-  subject_id    BigInt    @id @default(autoincrement())
-  case_id       BigInt?
-  bht_number    String?   @db.VarChar(200)
-  subject_type  String?   @db.VarChar(100)
+model patients {
+  patient_id    BigInt    @id @default(autoincrement())
   full_name     String?   @db.VarChar(400)
   nic           String?   @db.VarChar(100)
   date_of_birth DateTime? @db.Date
   gender        String?   @db.VarChar(50)
   address       String?   @db.Text
   telephone     String?   @db.VarChar(50)
-  cases         cases?    @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction, map: "subject_ibfk_1")
+  cases         cases[]
+}
 
-  @@index([case_id], map: "case_id")
+model evidence {
+  evidence_id       BigInt             @id @default(autoincrement())
+  case_id           BigInt?
+  evidence_type     String?            @db.VarChar(200)
+  description       String?            @db.Text
+  storage_location  String?            @db.VarChar(400)
+  collection_date   DateTime?          @db.Date
+  cases             cases?             @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction)
+  chain_of_custody  chain_of_custody[]
+
+  @@index([case_id])
+}
+
+model chain_of_custody {
+  custody_id        BigInt    @id @default(autoincrement())
+  evidence_id       BigInt?
+  transferred_from  String?   @db.VarChar(255)
+  transferred_to    String?   @db.VarChar(255)
+  date_time         DateTime? @db.DateTime(0)
+  purpose           String?   @db.Text
+  evidence          evidence? @relation(fields: [evidence_id], references: [evidence_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([evidence_id])
 }
 
 model summon {

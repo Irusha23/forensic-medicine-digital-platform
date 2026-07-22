@@ -4,10 +4,30 @@ import prisma from '../lib/prisma';
 import bcrypt from 'bcryptjs';
 
 async function main() {
-  console.log('Seeding roles and sample users...');
-  const roles = ['Doctor', 'Clerk', 'Admin'];
+  console.log('Seeding roles, document types, and sample users...');
+  const roles = ['Doctor', 'Clerk', 'Admin', 'JMO', 'Researcher', 'Data Entry Operator', 'Laboratory staff'];
   for (const r of roles) {
     await prisma.roles.upsert({ where: { role_name: r }, update: {}, create: { role_name: r, description: r } });
+  }
+
+  const documentTypes = [
+    'MLEF', 'Police Request Letter', 'Court Order', 'Referral Letter', 'Doctor Copy of MLEF', 
+    'BHT Extract', 'X-ray Report', 'CT Scan Report', 'Toxicology Report', 'DNA Report', 
+    'Laboratory Report', 'Specialist Referral Report', 'Clinical Photograph', 'Body Diagram', 
+    'Medico-Legal Report (MLR)', 'Court Summons', 'Supplementary Report', 'Certificate of Receipt', 
+    'Inquest Order', 'Crime Scene Report', 'Bed Head Ticket (BHT)', 'Hospital Record', 
+    'Witness Statement', 'Family Statement', 'Police Statement', 'Postmortem Report (PMR)', 
+    'Autopsy Notes', 'Histopathology Report', 'Radiology Report', 'Crime Scene Photograph', 
+    'Postmortem Photograph', 'Cause of Death Form'
+  ];
+
+  for (const dt of documentTypes) {
+    const code = dt.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    await prisma.document_type_lu.upsert({
+      where: { code },
+      update: { label: dt },
+      create: { code, label: dt }
+    });
   }
 
   const adminPw = 'adminpass';

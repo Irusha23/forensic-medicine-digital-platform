@@ -1,4 +1,14 @@
 import prisma from '../lib/prisma';
+import nodemailer from 'nodemailer';
+
+const transporter = nodemailer.createTransport({
+  host: 'smtp.ethereal.email',
+  port: 587,
+  auth: {
+    user: 'mock_user@ethereal.email',
+    pass: 'mock_pass'
+  }
+});
 
 export async function createNotification(data: {
   sender_user_id?: bigint | number;
@@ -8,7 +18,7 @@ export async function createNotification(data: {
   title: string;
   message: string;
 }) {
-  return prisma.notifications.create({
+  const notification = await prisma.notifications.create({
     data: {
       sender_user_id: data.sender_user_id ? BigInt(data.sender_user_id) : null,
       receiver_user_id: BigInt(data.receiver_user_id),
@@ -20,6 +30,24 @@ export async function createNotification(data: {
       status: 'NEW',
     }
   });
+
+  try {
+    const receiver = await prisma.users.findUnique({ where: { user_id: BigInt(data.receiver_user_id) } });
+    if (receiver && receiver.email) {
+      // Dispatch mock email
+      await transporter.sendMail({
+        from: '"Forensic Platform" <no-reply@forensic.local>',
+        to: receiver.email,
+        subject: data.title,
+        text: data.message
+      });
+      console.log(`Mock email sent to ${receiver.email} for notification: ${data.title}`);
+    }
+  } catch (err) {
+    console.error('Failed to send mock email notification:', err);
+  }
+
+  return notification;
 }
 
 export async function getUnreadNotificationsForUser(userId: bigint | number) {

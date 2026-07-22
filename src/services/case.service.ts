@@ -74,13 +74,49 @@ export async function validateCaseReadyForReport(caseId: string | number | bigin
   }
 }
 
-export async function listCases(page: number = 1, limit: number = 50) {
+export async function listCases(page: number = 1, limit: number = 50, filters: any = {}) {
   const skip = (page - 1) * limit;
 
+  const where: any = { is_deleted: false };
+
+  if (filters.search) {
+    where.case_number = { contains: filters.search };
+  }
+  if (filters.nic || filters.patient_name) {
+    where.patients = {
+      is: {
+        ...(filters.nic && { nic: { contains: filters.nic } }),
+        ...(filters.patient_name && { full_name: { contains: filters.patient_name } })
+      }
+    };
+  }
+  if (filters.police_station) {
+    where.police_stations = {
+      is: {
+        station_name: { contains: filters.police_station }
+      }
+    };
+  }
+  if (filters.start_date || filters.end_date) {
+    where.opened_date = {};
+    if (filters.start_date) where.opened_date.gte = new Date(filters.start_date);
+    if (filters.end_date) where.opened_date.lte = new Date(filters.end_date);
+  }
+  if (filters.doctor_id) {
+    where.assigned_doctor_id = toCaseId(filters.doctor_id);
+  }
+  if (filters.report_type) {
+    where.report = {
+      some: {
+        report_type: { equals: filters.report_type }
+      }
+    };
+  }
+
   const [total, data] = await Promise.all([
-    prisma.cases.count({ where: { is_deleted: false } }),
+    prisma.cases.count({ where }),
     prisma.cases.findMany({
-      where: { is_deleted: false },
+      where,
       orderBy: { created_at: 'desc' },
       skip,
       take: limit,
