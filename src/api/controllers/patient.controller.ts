@@ -26,6 +26,7 @@ export const getPatients = async (req: Request, res: Response) => {
         full_name: p.full_name,
         nic: p.nic,
         date_of_birth: p.date_of_birth,
+        age: p.age,
         gender: p.gender,
         address: p.address,
         telephone: p.telephone,

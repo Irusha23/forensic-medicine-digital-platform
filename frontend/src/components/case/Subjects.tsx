@@ -124,19 +124,25 @@ export const Subjects = ({ caseId }: { caseId: string }) => {
               <th className="p-2 border-r border-gray-300">Name</th>
               <th className="p-2 border-r border-gray-300">Type</th>
               <th className="p-2 border-r border-gray-300">NIC</th>
+              <th className="p-2 border-r border-gray-300">Age</th>
               <th className="p-2 border-r border-gray-300">Gender</th>
               <th className="p-2">Phone</th>
             </tr>
           </thead>
           <tbody>
             {subjects.length === 0 ? (
-              <tr><td colSpan={5} className="p-4 text-center text-gray-500">No subjects attached to this case.</td></tr>
+              <tr><td colSpan={6} className="p-4 text-center text-gray-500">No subjects attached to this case.</td></tr>
             ) : (
               subjects.map((s: any) => (
                 <tr key={s.subject_id} className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="p-2 border-r border-gray-300 font-semibold">{s.full_name}</td>
                   <td className="p-2 border-r border-gray-300">{s.subject_type}</td>
                   <td className="p-2 border-r border-gray-300 font-mono text-xs">{s.nic || '-'}</td>
+                  <td className="p-2 border-r border-gray-300 text-xs">
+                    {s.age !== null && s.age !== undefined 
+                      ? s.age 
+                      : (s.date_of_birth ? new Date().getFullYear() - new Date(s.date_of_birth).getFullYear() : '-')}
+                  </td>
                   <td className="p-2 border-r border-gray-300">{s.gender || '-'}</td>
                   <td className="p-2">{s.telephone || '-'}</td>
                 </tr>

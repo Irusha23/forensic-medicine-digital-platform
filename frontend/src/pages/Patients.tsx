@@ -107,7 +107,7 @@ export const Patients = () => {
                   <td className="p-3 font-medium text-gray-900">{p.full_name}</td>
                   <td className="p-3 text-gray-600">{p.nic || '-'}</td>
                   <td className="p-3 text-gray-600">{p.gender || '-'}</td>
-                  <td className="p-3 text-gray-600">{calculateAge(p.date_of_birth)}</td>
+                  <td className="p-3 text-gray-600">{p.age !== null && p.age !== undefined ? p.age : calculateAge(p.date_of_birth)}</td>
                   <td className="p-3">
                     <span className={`px-2 py-1 rounded text-xs font-semibold ${
                       p.case_type === 'Clinical' ? 'bg-blue-100 text-blue-800' :

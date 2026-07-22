@@ -407,6 +407,7 @@ model patients {
   full_name     String?   @db.VarChar(400)
   nic           String?   @db.VarChar(100)
   date_of_birth DateTime? @db.Date
+  age           Int?
   gender        String?   @db.VarChar(50)
   address       String?   @db.Text
   telephone     String?   @db.VarChar(50)
