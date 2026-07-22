@@ -19,7 +19,7 @@ export async function generateReportController(req: Request, res: Response) {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename="report.pdf"');
     res.setHeader('Content-Length', String(pdfBuffer.length));
-    res.end(pdfBuffer, 'binary');
+    res.send(pdfBuffer);
   } catch (e: any) {
     res.status(500).json({ error: e.message || 'failed to generate report' });
   }

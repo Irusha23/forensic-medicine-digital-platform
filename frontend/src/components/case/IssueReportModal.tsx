@@ -32,7 +32,7 @@ export const IssueReportModal = ({ caseId, caseNumber, onClose }: IssueReportMod
       
       // Then download the PDF blob
       const pdfRes = await api.get(`/cases/${caseId}/report?reportType=${formData.report_type}`, { responseType: 'blob' });
-      const url = window.URL.createObjectURL(new Blob([pdfRes.data]));
+      const url = window.URL.createObjectURL(new Blob([pdfRes.data], { type: 'application/pdf' }));
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `case_${caseNumber || caseId}_report.pdf`);

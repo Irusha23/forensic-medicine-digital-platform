@@ -58,10 +58,6 @@ export async function validateCaseReadyForReport(caseId: string | number | bigin
     throw new Error('Cannot issue report: The case is already closed.');
   }
 
-  if (fullCase.report && fullCase.report.length > 0) {
-    throw new Error('Cannot issue report: An official report has already been issued for this case.');
-  }
-
   if (fullCase.case_type_lu?.code === 'clinical') {
     if (!fullCase.clinical_case?.examination_findings || !fullCase.clinical_case?.provisional_diagnosis) {
       throw new Error('Cannot issue report: Clinical examination findings and provisional diagnosis must be filled.');

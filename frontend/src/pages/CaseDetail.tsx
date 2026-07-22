@@ -57,18 +57,13 @@ export const CaseDetail = () => {
           <h1 className="text-2xl font-bold">Case {caseData.case_number || id}</h1>
         </div>
         <RequireRole roles={['Admin', 'Doctor']}>
-          {!(caseData.status === 'CLOSED' || caseData.status === 'closed' || caseData.case_status_lu?.id === 2) && !(caseData.report && caseData.report.length > 0) && (
+          {!(caseData.status === 'CLOSED' || caseData.status === 'closed' || caseData.case_status_lu?.id === 2) && (
             <button 
               className="bg-green-600 text-white px-4 py-2 hover:bg-green-700 font-medium"
               onClick={handleGenerateReportClick}
             >
               Issue Official Report
             </button>
-          )}
-          {(caseData.report && caseData.report.length > 0) && (
-            <span className="bg-gray-100 text-gray-800 px-4 py-2 font-medium border rounded">
-              Report Issued
-            </span>
           )}
         </RequireRole>
       </div>
