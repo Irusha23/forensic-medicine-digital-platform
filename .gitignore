@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+data/
+uploads/
+coverage/
+/.idea
+.vscode
+
+# OS generated files
+.DS_Store
+
+# Temporary / test files
+tmp-*
+downloaded.*

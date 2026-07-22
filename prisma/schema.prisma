@@ -1,0 +1,446 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model audit_log {
+  log_id         BigInt   @id @default(autoincrement())
+  user_id        BigInt?
+  action         String?  @db.VarChar(255)
+  entity_type    String?  @db.VarChar(200)
+  entity_id      BigInt?
+  workstation_id String?  @db.VarChar(255)
+  timestamp      DateTime @default(now()) @db.Timestamp(0)
+  payload        Json?
+  users          users?   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "audit_log_ibfk_1")
+
+  @@index([timestamp], map: "idx_audit_log_ts")
+  @@index([user_id], map: "idx_audit_log_user")
+}
+
+model autopsy_case {
+  case_id                  BigInt    @id
+  postmortem_number        String?   @db.VarChar(200)
+  death_category           String?   @db.VarChar(200)
+  authorization_id         BigInt?
+  is_authorized            Boolean?  @default(false)
+  place_of_death           String?   @db.VarChar(400)
+  date_time_of_death       DateTime? @db.DateTime(0)
+  notification_source      String?   @db.VarChar(255)
+  notification_date_time   DateTime? @db.DateTime(0)
+  informing_officer        String?   @db.VarChar(255)
+  body_received_date_time  DateTime? @db.DateTime(0)
+  receiving_officer        String?   @db.VarChar(255)
+  condition_upon_arrival   String?   @db.VarChar(255)
+  identification_status    String?   @db.VarChar(100)
+  immediate_cause_of_death String?   @db.VarChar(500)
+  antecedent_causes        String?   @db.Text
+  manner_of_death          String?   @db.VarChar(100)
+  external_findings        String?   @db.Text
+  internal_findings        String?   @db.Text
+  cases                    cases     @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction, map: "autopsy_case_ibfk_1")
+}
+
+model case_status_lu {
+  id    Int     @id @default(autoincrement())
+  code  String  @unique(map: "code") @db.VarChar(100)
+  label String  @db.VarChar(255)
+  cases cases[]
+}
+
+model case_type_lu {
+  id    Int     @id @default(autoincrement())
+  code  String  @unique(map: "code") @db.VarChar(100)
+  label String  @db.VarChar(255)
+  cases cases[]
+}
+
+model cases {
+  case_id              BigInt                 @id @default(autoincrement())
+  case_number          String                 @unique(map: "case_number") @db.VarChar(200)
+  case_type_id         Int?
+  case_status_id       Int?
+  status               String?                @db.VarChar(100)
+  assigned_doctor_id   BigInt?
+  police_station_id    Int?
+  opened_date          DateTime?              @db.Date
+  closed_date          DateTime?              @db.Date
+  created_at           DateTime               @default(now()) @db.Timestamp(0)
+  is_deleted           Boolean                @default(false)
+  deleted_at           DateTime?              @db.Timestamp(0)
+  version              Int                    @default(1)
+  autopsy_case         autopsy_case?
+  autopsy_details      autopsy_details?
+  case_type_lu         case_type_lu?          @relation(fields: [case_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cases_ibfk_1")
+  case_status_lu       case_status_lu?        @relation(fields: [case_status_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "cases_ibfk_2")
+  users                users?                 @relation(fields: [assigned_doctor_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "cases_ibfk_3")
+  police_stations      police_stations?       @relation(fields: [police_station_id], references: [police_station_id], onDelete: NoAction, onUpdate: NoAction, map: "cases_ibfk_4")
+  clinical_case        clinical_case?
+  court_event          court_event[]
+  documents            documents[]
+  finding              finding[]
+  investigation        investigation[]
+  legal_authorizations legal_authorizations[]
+  media                media[]
+  notifications        notifications[]
+  referral             referral[]
+  report               report[]
+  review_visit         review_visit[]
+  subject              subject[]
+
+  @@index([assigned_doctor_id], map: "assigned_doctor_id")
+  @@index([case_status_id], map: "case_status_id")
+  @@index([case_type_id], map: "case_type_id")
+  @@index([status, created_at], map: "idx_cases_status_created")
+  @@index([police_station_id], map: "police_station_id")
+}
+
+model clinical_case {
+  case_id               BigInt    @id
+  referral_source       String?   @db.VarChar(255)
+  referral_date_time    DateTime? @db.DateTime(0)
+  referring_officer     String?   @db.VarChar(255)
+  ward_number           String?   @db.VarChar(100)
+  clinical_category     String?   @db.VarChar(255)
+  mlef_serial_number    String?   @db.VarChar(255)
+  incident_date_time    DateTime? @db.DateTime(0)
+  incident_description  String?   @db.Text
+  past_medical_history  String?   @db.Text
+  examination_findings  String?   @db.Text
+  provisional_diagnosis String?   @db.Text
+  institution_details   String?   @db.Text
+  cases                 cases     @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction, map: "clinical_case_ibfk_1")
+}
+
+enum manner_of_death {
+  NATURAL
+  ACCIDENT
+  HOMICIDE
+  SUICIDE
+  UNDETERMINED
+  PENDING_INVESTIGATION
+}
+
+model autopsy_details {
+  case_id                   BigInt           @id
+  time_since_death_estimate String?          @db.VarChar(255)
+  clothing_details          String?          @db.Text
+  identification_marks      String?          @db.Text
+  external_injuries         Json?
+  internal_injuries         Json?
+  organ_findings            Json?
+  immediate_cause_of_death  String?          @db.Text
+  antecedent_causes         String?          @db.Text
+  manner_of_death           manner_of_death?
+  cases                     cases            @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction, map: "autopsy_details_ibfk_1")
+}
+
+model court_event {
+  court_event_id      BigInt    @id @default(autoincrement())
+  case_id             BigInt?
+  event_date          DateTime? @db.Date
+  event_type          String?   @db.VarChar(100)
+  court_name          String?   @db.VarChar(255)
+  outcome_or_response String?   @db.Text
+  cases               cases?    @relation(fields: [case_id], references: [case_id], onDelete: NoAction, onUpdate: NoAction, map: "court_event_ibfk_1")
+
+  @@index([case_id], map: "case_id")
+}
+
+model court_order {
+  authorization_id     BigInt               @id
+  court_order_number   String?              @db.VarChar(255)
+  court_case_number    String?              @db.VarChar(255)
+  court_name           String?              @db.VarChar(400)
+  legal_authorizations legal_authorizations @relation(fields: [authorization_id], references: [authorization_id], onDelete: Cascade, onUpdate: NoAction, map: "court_order_ibfk_1")
+}
+
+model document_type_lu {
+  id        Int         @id @default(autoincrement())
+  code      String      @unique(map: "code") @db.VarChar(100)
+  label     String      @db.VarChar(255)
+  documents documents[]
+}
+
+model documents {
+  document_id          BigInt                 @id @default(autoincrement())
+  case_id              BigInt?
+  document_type_id     Int?
+  document_type        String?                @db.VarChar(200)
+  title                String?                @db.VarChar(500)
+  file_path            String?                @db.VarChar(2000)
+  version              Int?                   @default(1)
+  uploaded_at          DateTime               @default(now()) @db.Timestamp(0)
+  uploaded_by          BigInt?
+  cases                cases?                 @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction, map: "documents_ibfk_1")
+  document_type_lu     document_type_lu?      @relation(fields: [document_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "documents_ibfk_2")
+  users                users?                 @relation(fields: [uploaded_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "documents_ibfk_3")
+  investigation        investigation[]
+  legal_authorizations legal_authorizations[]
+  referral             referral[]
+  report               report[]
+  report_issuance      report_issuance[]
+
+  @@index([document_type_id], map: "document_type_id")
+  @@index([case_id], map: "idx_documents_case_id")
+  @@index([uploaded_by], map: "idx_documents_uploaded_by")
+}
+
+model finding {
+  finding_id  BigInt   @id @default(autoincrement())
+  case_id     BigInt?
+  phase       String?  @db.VarChar(100)
+  description String?  @db.Text
+  recorded_by BigInt?
+  recorded_at DateTime @default(now()) @db.Timestamp(0)
+  cases       cases?   @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction, map: "finding_ibfk_1")
+  users       users?   @relation(fields: [recorded_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "finding_ibfk_2")
+
+  @@index([case_id], map: "idx_finding_case_id")
+  @@index([recorded_by], map: "idx_finding_recorded_by")
+}
+
+model inquest_order {
+  authorization_id     BigInt               @id
+  inquest_order_number String?              @db.VarChar(255)
+  isd_officer_name     String?              @db.VarChar(255)
+  police_station       String?              @db.VarChar(400)
+  legal_authorizations legal_authorizations @relation(fields: [authorization_id], references: [authorization_id], onDelete: Cascade, onUpdate: NoAction, map: "inquest_order_ibfk_1")
+}
+
+model investigation {
+  investigation_id   BigInt     @id @default(autoincrement())
+  case_id            BigInt?
+  investigation_type String?    @db.VarChar(200)
+  requested_date     DateTime?  @db.Date
+  completed_date     DateTime?  @db.Date
+  status             String?    @db.VarChar(100)
+  summary            String?    @db.Text
+  results            String?    @db.Text
+  document_id        BigInt?
+  cases              cases?     @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction, map: "investigation_ibfk_1")
+  documents          documents? @relation(fields: [document_id], references: [document_id], onDelete: NoAction, onUpdate: NoAction, map: "investigation_ibfk_2")
+  media              media[]
+
+  @@index([case_id], map: "case_id")
+  @@index([document_id], map: "document_id")
+}
+
+model legal_authorizations {
+  authorization_id   BigInt         @id @default(autoincrement())
+  case_id            BigInt
+  authorization_type String?        @db.VarChar(200)
+  issue_date         DateTime?      @db.Date
+  issuing_authority  String?        @db.VarChar(400)
+  remarks            String?        @db.Text
+  document_id        BigInt?
+  details            Json?
+  created_at         DateTime       @default(now()) @db.Timestamp(0)
+  court_order        court_order?
+  inquest_order      inquest_order?
+  cases              cases          @relation(fields: [case_id], references: [case_id], onDelete: NoAction, onUpdate: NoAction, map: "legal_authorizations_ibfk_1")
+  documents          documents?     @relation(fields: [document_id], references: [document_id], onDelete: NoAction, onUpdate: NoAction, map: "legal_authorizations_ibfk_2")
+  summon             summon?
+
+  @@index([case_id], map: "case_id")
+  @@index([document_id], map: "document_id")
+}
+
+model media {
+  media_id         BigInt         @id @default(autoincrement())
+  case_id          BigInt?
+  investigation_id BigInt?
+  media_type_id    Int?
+  media_type       String?        @db.VarChar(200)
+  category         String?        @db.VarChar(200)
+  file_path        String?        @db.VarChar(2000)
+  version          Int?           @default(1)
+  captured_at      DateTime?      @db.Timestamp(0)
+  captured_by      BigInt?
+  cases            cases?         @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction, map: "media_ibfk_1")
+  investigation    investigation? @relation(fields: [investigation_id], references: [investigation_id], onDelete: SetNull, onUpdate: NoAction, map: "media_ibfk_4")
+  media_type_lu    media_type_lu? @relation(fields: [media_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "media_ibfk_2")
+  users            users?         @relation(fields: [captured_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "media_ibfk_3")
+
+  @@index([captured_by], map: "idx_media_captured_by")
+  @@index([case_id], map: "idx_media_case_id")
+  @@index([media_type_id], map: "media_type_id")
+}
+
+model media_type_lu {
+  id    Int     @id @default(autoincrement())
+  code  String  @unique(map: "code") @db.VarChar(100)
+  label String  @db.VarChar(255)
+  media media[]
+}
+
+model notification_priority_lu {
+  id            Int             @id @default(autoincrement())
+  code          String          @unique(map: "code") @db.VarChar(50)
+  label         String          @db.VarChar(100)
+  notifications notifications[]
+}
+
+model notifications {
+  notification_id                             BigInt                    @id @default(autoincrement())
+  sender_user_id                              BigInt?
+  receiver_user_id                            BigInt?
+  case_id                                     BigInt?
+  notification_type                           String?                   @db.VarChar(200)
+  title                                       String?                   @db.VarChar(500)
+  message                                     String?                   @db.Text
+  created_at                                  DateTime                  @default(now()) @db.Timestamp(0)
+  read_at                                     DateTime?                 @db.Timestamp(0)
+  is_read                                     Boolean?                  @default(false)
+  priority_id                                 Int?
+  status                                      String?                   @db.VarChar(100)
+  users_notifications_sender_user_idTousers   users?                    @relation("notifications_sender_user_idTousers", fields: [sender_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "notifications_ibfk_1")
+  users_notifications_receiver_user_idTousers users?                    @relation("notifications_receiver_user_idTousers", fields: [receiver_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "notifications_ibfk_2")
+  cases                                       cases?                    @relation(fields: [case_id], references: [case_id], onDelete: NoAction, onUpdate: NoAction, map: "notifications_ibfk_3")
+  notification_priority_lu                    notification_priority_lu? @relation(fields: [priority_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "notifications_ibfk_4")
+
+  @@index([case_id], map: "case_id")
+  @@index([receiver_user_id, is_read, created_at], map: "idx_notifications_receiver_unread")
+  @@index([priority_id], map: "priority_id")
+  @@index([sender_user_id], map: "sender_user_id")
+}
+
+model police_stations {
+  police_station_id Int     @id @default(autoincrement())
+  station_name      String? @db.VarChar(255)
+  district          String? @db.VarChar(255)
+  contact_number    String? @db.VarChar(50)
+  cases             cases[]
+}
+
+model referral {
+  referral_id     BigInt     @id @default(autoincrement())
+  case_id         BigInt?
+  specialty       String?    @db.VarChar(255)
+  consultant_name String?    @db.VarChar(255)
+  referral_date   DateTime?  @db.Date
+  recommendation  String?    @db.Text
+  document_id     BigInt?
+  cases           cases?     @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction, map: "referral_ibfk_1")
+  documents       documents? @relation(fields: [document_id], references: [document_id], onDelete: NoAction, onUpdate: NoAction, map: "referral_ibfk_2")
+
+  @@index([case_id], map: "case_id")
+  @@index([document_id], map: "document_id")
+}
+
+model report {
+  report_id                 BigInt            @id @default(autoincrement())
+  case_id                   BigInt?
+  report_type               String?           @db.VarChar(200)
+  version                   Int?              @default(1)
+  final_opinion             String?           @db.Text
+  issued_date               DateTime?         @db.Date
+  issued_by                 BigInt?
+  document_id               BigInt?
+  recipient_details         String?           @db.Text
+  method_of_delivery        String?           @db.VarChar(200)
+  certificate_of_receipt_id String?           @db.VarChar(255)
+  cases                     cases?            @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction, map: "report_ibfk_1")
+  users                     users?            @relation(fields: [issued_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_2")
+  documents                 documents?        @relation(fields: [document_id], references: [document_id], onDelete: NoAction, onUpdate: NoAction, map: "report_ibfk_3")
+  report_issuance           report_issuance[]
+
+  @@index([document_id], map: "document_id")
+  @@index([case_id], map: "idx_reports_case_id")
+  @@index([issued_by], map: "idx_reports_issued_by")
+}
+
+model report_issuance {
+  issuance_id           BigInt     @id @default(autoincrement())
+  report_id             BigInt?
+  recipient_name        String?    @db.VarChar(255)
+  recipient_designation String?    @db.VarChar(255)
+  issued_date           DateTime?  @db.Date
+  method_of_delivery    String?    @db.VarChar(100)
+  receipt_document_id   BigInt?
+  report                report?    @relation(fields: [report_id], references: [report_id], onDelete: Cascade, onUpdate: NoAction, map: "report_issuance_ibfk_1")
+  documents             documents? @relation(fields: [receipt_document_id], references: [document_id], onDelete: NoAction, onUpdate: NoAction, map: "report_issuance_ibfk_2")
+
+  @@index([report_id], map: "report_id")
+  @@index([receipt_document_id], map: "receipt_document_id")
+}
+
+model review_visit {
+  review_id       BigInt    @id @default(autoincrement())
+  case_id         BigInt?
+  review_date     DateTime? @db.Date
+  findings        String?   @db.Text
+  recommendations String?   @db.Text
+  cases           cases?    @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction, map: "review_visit_ibfk_1")
+
+  @@index([case_id], map: "case_id")
+}
+
+model roles {
+  role_id     Int         @id @default(autoincrement())
+  role_name   String      @unique(map: "role_name") @db.VarChar(150)
+  description String?     @db.VarChar(500)
+  user_role   user_role[]
+}
+
+model subject {
+  subject_id    BigInt    @id @default(autoincrement())
+  case_id       BigInt?
+  bht_number    String?   @db.VarChar(200)
+  subject_type  String?   @db.VarChar(100)
+  full_name     String?   @db.VarChar(400)
+  nic           String?   @db.VarChar(100)
+  date_of_birth DateTime? @db.Date
+  gender        String?   @db.VarChar(50)
+  address       String?   @db.Text
+  telephone     String?   @db.VarChar(50)
+  cases         cases?    @relation(fields: [case_id], references: [case_id], onDelete: Cascade, onUpdate: NoAction, map: "subject_ibfk_1")
+
+  @@index([case_id], map: "case_id")
+}
+
+model summon {
+  authorization_id     BigInt               @id
+  MLEF_number          String?              @db.VarChar(255)
+  court_case_number    String?              @db.VarChar(255)
+  court_date           DateTime?            @db.Date
+  court_name           String?              @db.VarChar(400)
+  legal_authorizations legal_authorizations @relation(fields: [authorization_id], references: [authorization_id], onDelete: Cascade, onUpdate: NoAction, map: "summon_ibfk_1")
+}
+
+model user_role {
+  user_id BigInt
+  role_id Int
+  users   users  @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "user_role_ibfk_1")
+  roles   roles  @relation(fields: [role_id], references: [role_id], onDelete: Cascade, onUpdate: NoAction, map: "user_role_ibfk_2")
+
+  @@id([user_id, role_id])
+  @@index([role_id], map: "role_id")
+}
+
+model users {
+  user_id                                             BigInt          @id @default(autoincrement())
+  username                                            String          @unique(map: "uq_users_username") @db.VarChar(150)
+  password_hash                                       String          @db.VarChar(255)
+  first_name                                          String?         @db.VarChar(150)
+  last_name                                           String?         @db.VarChar(150)
+  email                                               String          @db.VarChar(255)
+  email_lower                                         String?         @unique(map: "uq_users_email_lower") @db.VarChar(255)
+  designation                                         String?         @db.VarChar(200)
+  is_active                                           Boolean         @default(true)
+  created_at                                          DateTime        @default(now()) @db.Timestamp(0)
+  last_login                                          DateTime?       @db.Timestamp(0)
+  audit_log                                           audit_log[]
+  cases                                               cases[]
+  documents                                           documents[]
+  finding                                             finding[]
+  media                                               media[]
+  notifications_notifications_sender_user_idTousers   notifications[] @relation("notifications_sender_user_idTousers")
+  notifications_notifications_receiver_user_idTousers notifications[] @relation("notifications_receiver_user_idTousers")
+  report                                              report[]
+  user_role                                           user_role[]
+}

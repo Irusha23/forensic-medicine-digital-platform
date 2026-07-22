@@ -1,0 +1,412 @@
+CLINICAL AND AUTOPSY CASE WORKFLOW
+PIPELINES
+PART A – CLINICAL FORENSIC CASE PIPELINE
+Step 1: Patient Referral
+Sources:
+Hospital Ward
+Police Station
+Attorney General's Department
+Human Rights Commission
+Other authorities
+Data to Store
+Case ID
+Referral source
+Referral date/time
+Referring officer
+Institution details
+Referral documents
+Step 2: Legal Authorization Verification
+Required Documents:
+MLEF
+Court Order
+Request Letter
+Data to Store
+Authorization document number
+Document type
+Issuing authority
+Issue date
+Scanned copy• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+1
+Step 3: Patient Registration
+Data to Store
+Patient Information:
+Full name
+NIC/Passport number
+Age
+Sex/Gender
+Address
+Telephone number
+Administrative Information:
+Hospital number
+Ward number
+Police station
+Case number
+Examining doctor
+Step 4: Clinical Examination
+Data to Store
+History:
+Incident description
+Alleged assault details
+Date/time of incident
+Previous medical history
+Examination Findings:
+General examination findings
+Injury descriptions
+Body diagrams
+Mental status findings
+Step 5: Photograph Collection
+Data to Store
+Photograph ID• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+2
+Photograph category
+Capture date/time
+Photographer
+Description
+Digital image
+Step 6: Investigations
+Examples:
+X-ray
+CT scan
+Toxicology
+Swab analysis
+Data to Store
+Investigation type
+Request date
+Laboratory
+Result date
+Findings
+Attached reports
+Step 7: Specialist Referrals
+Examples:
+Psychiatry
+Paediatrics
+Obstetrics & Gynaecology
+Data to Store
+Referral specialty
+Referral date
+Consultant name
+Referral report
+Recommendations• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+3
+Step 8: Review Visits
+Data to Store
+Review date
+Review findings
+Additional injuries
+Follow-up recommendations
+Step 9: Medico-Legal Report Generation
+Outputs:
+Police copy of MLEF
+MLR
+Data to Store
+Report number
+Report issue date
+Final opinion
+Report file
+Issuing doctor
+Step 10: Report Issuance
+Data to Store
+Recipient details
+Date issued
+Method of delivery
+Certificate of receipt
+Signature acknowledgement
+PART B – AUTOPSY CASE PIPELINE
+Step 1: Death Notification
+Sources:
+Hospital Death
+Outside Death• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+4
+High Profile Death
+Data to Store
+Notification source
+Date/time
+Informing officer
+Place of death
+Step 2: Inquest/Court Authorization
+Required Documents:
+Inquest order
+Court order
+Data to Store
+Order number
+Issuing authority
+Date issued
+Scanned copy
+Step 3: Deceased Registration
+Data to Store
+PM number
+Name/Unknown identifier
+Age
+Sex
+NIC (if available)
+Address
+Date/time of death
+Place of death
+Police station
+Investigating officer
+Step 4: Pre-Autopsy Information Gathering
+Sources:
+Crime scene• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+5
+BHT
+Family statements
+Witness statements
+Police statements
+Data to Store
+Scene observations
+BHT documents
+Witness statements
+Police statements
+Family history
+Relevant medical history
+Step 5: Body Reception
+Data to Store
+Date/time received
+Receiving officer
+Condition upon arrival
+Identification status
+Step 6: Postmortem Examination
+External Examination:
+Clothing details
+Identification marks
+Injuries
+Internal Examination:
+Organ findings
+Pathological findings
+Data to Store
+Audio recordings
+Dictation transcripts
+PM findings
+Organ descriptions
+Injury descriptions
+Time since death estimation• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+6
+Step 7: Photograph Management
+Data to Store
+Crime scene photographs
+Autopsy photographs
+Metadata
+Photographer details
+Step 8: Ancillary Investigations
+Examples:
+Histology
+Toxicology
+Radiology
+Blood analysis
+Data to Store
+Sample details
+Laboratory details
+Test requests
+Results
+Reports
+Step 9: Cause of Death Determination
+Data to Store
+Immediate cause of death
+Antecedent causes
+Manner of death
+Natural
+Accidental
+Suicidal
+Homicidal
+Certifying doctor• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+7
+Step 10: PMR Generation
+Data to Store
+PMR number
+Report date
+Final opinion
+Generated PMR document
+Step 11: Court Communication
+Data to Store
+Court summons
+Request letters
+Court dates
+Court responses
+Step 12: Report Issuance and Archival
+Data to Store
+Recipient information
+Date issued
+Receipt certificate
+Archived copies
+Access history
+Suggested Database Modules
+User Management
+Patient Management
+Deceased Management
+Clinical Case Management
+Autopsy Case Management
+Investigation Management
+Document Management
+Media Repository
+Report Management
+Court Management
+Notification System
+Audit Logging• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+• 
+1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+7. 
+8. 
+9. 
+10. 
+11. 
+12. 
+8
+Research Repository13. 
+9

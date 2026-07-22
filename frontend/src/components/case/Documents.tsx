@@ -1,0 +1,116 @@
+import React, { useEffect, useState } from 'react';
+import api from '../../api/client';
+
+export const Documents = ({ caseId }: { caseId: string }) => {
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [title, setTitle] = useState('');
+
+  const fetchDocuments = async () => {
+    try {
+      const res = await api.get(`/cases/${caseId}/documents`);
+      setDocuments(res.data);
+    } catch (err: any) {
+      setError('Failed to fetch documents');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDocuments();
+  }, [caseId]);
+
+  const handleDownload = async (documentId: string, filename: string) => {
+    try {
+      const res = await api.get(`/cases/documents/download/${documentId}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+    } catch (err) {
+      alert('Failed to download document');
+    }
+  };
+
+  const handleUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!uploadFile) return;
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', uploadFile);
+      formData.append('title', title);
+      await api.post(`/cases/${caseId}/documents`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setUploadFile(null);
+      setTitle('');
+      fetchDocuments();
+    } catch (err) {
+      alert('Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  if (loading) return <div>Loading documents...</div>;
+
+  return (
+    <div className="space-y-4">
+      {error && <div className="text-red-600 bg-red-100 p-2">{error}</div>}
+      
+      <form onSubmit={handleUpload} className="flex gap-4 items-center bg-gray-50 p-4 border border-gray-200 rounded">
+        <input 
+          type="text" 
+          placeholder="Document Title" 
+          value={title} 
+          onChange={(e) => setTitle(e.target.value)} 
+          className="p-2 border border-gray-300 rounded text-sm w-48"
+        />
+        <input type="file" onChange={(e) => setUploadFile(e.target.files?.[0] || null)} className="text-sm" />
+        <button type="submit" disabled={!uploadFile || uploading} className="px-4 py-2 bg-blue-600 text-white rounded disabled:opacity-50 text-sm">
+          {uploading ? 'Uploading...' : 'Upload Document'}
+        </button>
+      </form>
+
+      <table className="w-full text-left border-collapse text-sm border border-gray-300">
+        <thead>
+          <tr className="bg-gray-100 border-b border-gray-300">
+            <th className="p-2 border-r border-gray-300">Title</th>
+            <th className="p-2 border-r border-gray-300">Filename</th>
+            <th className="p-2 border-r border-gray-300">Type</th>
+            <th className="p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {documents.length === 0 ? (
+            <tr><td colSpan={4} className="p-4 text-center text-gray-500">No documents attached to this case.</td></tr>
+          ) : (
+            documents.map((d: any) => (
+              <tr key={d.document_id} className="border-b border-gray-200 hover:bg-gray-50">
+                <td className="p-2 border-r border-gray-300 font-semibold">{d.title || 'Untitled'}</td>
+                <td className="p-2 border-r border-gray-300 font-mono text-xs">{d.file_path ? d.file_path.split('/').pop() : 'Unknown'}</td>
+                <td className="p-2 border-r border-gray-300">{d.document_type || 'File'}</td>
+                <td className="p-2">
+                  <button 
+                    onClick={() => handleDownload(d.document_id, d.file_path ? d.file_path.split('/').pop() : 'download')}
+                    className="text-blue-600 hover:underline text-sm"
+                  >
+                    Download
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+};
