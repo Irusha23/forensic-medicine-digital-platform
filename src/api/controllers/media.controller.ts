@@ -13,8 +13,9 @@ export async function uploadMedia(req: RequestWithFile, res: Response) {
     const investigationId = req.body.investigation_id ? Number(req.body.investigation_id) : undefined;
     const category = req.body.category;
     const mediaType = req.body.media_type;
+    const description = req.body.description;
     const uploaderId = req.user?.userId;
-    const out = await saveMediaFile({ tmpPath: file.path, originalName: file.originalname, caseId: caseId, investigationId: investigationId, uploaderId: uploaderId, category, mediaType });
+    const out = await saveMediaFile({ tmpPath: file.path, originalName: file.originalname, caseId: caseId, investigationId: investigationId, uploaderId: uploaderId, category, mediaType, description });
     res.json({ ok: true, media: out.media, storage: out.storage });
   } catch (e: any) {
     console.error(e);
@@ -30,8 +31,9 @@ export async function uploadInvestigationMedia(req: RequestWithFile, res: Respon
     const caseId = req.body.case_id ? Number(req.body.case_id) : undefined;
     const category = req.body.category || 'LAB_REPORT';
     const mediaType = req.body.media_type;
+    const description = req.body.description;
     const uploaderId = req.user?.userId;
-    const out = await saveMediaFile({ tmpPath: file.path, originalName: file.originalname, caseId: caseId ? Number(caseId) : undefined, investigationId: investigationId ? Number(investigationId) : undefined, uploaderId: uploaderId ? Number(uploaderId) : undefined, category, mediaType });
+    const out = await saveMediaFile({ tmpPath: file.path, originalName: file.originalname, caseId: caseId ? Number(caseId) : undefined, investigationId: investigationId ? Number(investigationId) : undefined, uploaderId: uploaderId ? Number(uploaderId) : undefined, category, mediaType, description });
     res.json({ ok: true, media: out.media, storage: out.storage });
   } catch (e: any) {
     console.error(e);

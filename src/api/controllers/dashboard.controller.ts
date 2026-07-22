@@ -55,3 +55,51 @@ export async function getDashboardMetrics(req: Request, res: Response) {
     res.status(500).json({ error: 'Failed to fetch dashboard metrics' });
   }
 }
+
+export async function getGlobalAuditLogs(req: Request, res: Response) {
+  try {
+    const { userId, action, entityType, startDate, endDate, page = '1', limit = '50' } = req.query;
+
+    const where: any = {};
+    if (userId) where.user_id = BigInt(userId as string);
+    if (action) where.action = { contains: action as string };
+    if (entityType) where.entity_type = entityType as string;
+    
+    if (startDate || endDate) {
+      where.timestamp = {};
+      if (startDate) where.timestamp.gte = new Date(startDate as string);
+      if (endDate) {
+        const end = new Date(endDate as string);
+        end.setHours(23, 59, 59, 999);
+        where.timestamp.lte = end;
+      }
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const take = Number(limit);
+
+    const [logs, total] = await Promise.all([
+      prisma.audit_log.findMany({
+        where,
+        orderBy: { timestamp: 'desc' },
+        skip,
+        take,
+        include: { users: { select: { username: true, first_name: true, last_name: true } } }
+      }),
+      prisma.audit_log.count({ where })
+    ]);
+
+    res.json({
+      data: logs,
+      meta: {
+        total,
+        page: Number(page),
+        limit: Number(limit),
+        totalPages: Math.ceil(total / Number(limit))
+      }
+    });
+  } catch (error: any) {
+    console.error('Failed to fetch global audit logs:', error);
+    res.status(500).json({ error: 'Failed to fetch global audit logs' });
+  }
+}

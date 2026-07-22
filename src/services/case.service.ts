@@ -150,7 +150,30 @@ export async function getCaseById(caseId: string | number | bigint) {
       case_status_lu: true,
       clinical_case: true,
       autopsy_case: true,
-      users: true,
+      users: {
+        select: {
+          user_id: true,
+          first_name: true,
+          last_name: true,
+          email: true,
+          designation: true
+        }
+      },
+      police_stations: true,
+      patients: true,
+      court_event: true,
+      referral: {
+        include: {
+          users: {
+            select: {
+              first_name: true,
+              last_name: true,
+              designation: true,
+              email: true
+            }
+          }
+        }
+      },
       media: true,
       documents: true,
       report: true

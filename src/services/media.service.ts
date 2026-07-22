@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import prisma from '../lib/prisma';
 
-export async function saveMediaFile({ tmpPath, originalName, caseId, investigationId, uploaderId, category, mediaType }: { tmpPath: string; originalName: string; caseId?: number | bigint; investigationId?: number | bigint; uploaderId?: number | bigint; category?: string; mediaType?: string }) {
+export async function saveMediaFile({ tmpPath, originalName, caseId, investigationId, uploaderId, category, mediaType, description }: { tmpPath: string; originalName: string; caseId?: number | bigint; investigationId?: number | bigint; uploaderId?: number | bigint; category?: string; mediaType?: string; description?: string }) {
   const ext = path.extname(originalName) || '';
   const y = new Date().getFullYear();
   let resolvedCaseId = caseId ? BigInt(caseId) : null;
@@ -25,6 +25,7 @@ export async function saveMediaFile({ tmpPath, originalName, caseId, investigati
     investigation_id: investigationId ? BigInt(investigationId) : null,
     media_type: mediaType || null,
     category: category || null,
+    description: description || null,
     file_path: res.path,
     captured_by: uploaderId as any || null,
     captured_at: new Date()

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/client';
+import { SearchableSelect } from '../common/SearchableSelect';
 
 export const Authorizations = ({ caseId }: { caseId: string }) => {
   const [authorizations, setAuthorizations] = useState<any[]>([]);
@@ -23,6 +24,28 @@ export const Authorizations = ({ caseId }: { caseId: string }) => {
   
   const [mlefNumber, setMlefNumber] = useState('');
   const [courtDate, setCourtDate] = useState('');
+
+  const fetchPoliceStations = async (query: string) => {
+    const res = await api.get('/police-stations');
+    const filtered = res.data.filter((s: any) => 
+      `${s.station_name} ${s.district || ''}`.toLowerCase().includes(query.toLowerCase())
+    );
+    return filtered.map((s: any) => ({
+      label: `${s.station_name} ${s.district ? `(${s.district})` : ''}`,
+      value: s.station_name // Using station_name as value per existing logic
+    }));
+  };
+
+  const fetchCourts = async (query: string) => {
+    const res = await api.get('/courts');
+    const filtered = res.data.filter((c: any) => 
+      c.court_name.toLowerCase().includes(query.toLowerCase())
+    );
+    return filtered.map((c: any) => ({
+      label: c.court_name,
+      value: c.court_name // Using court_name as value per existing logic
+    }));
+  };
 
   const fetchAuthorizations = async () => {
     try {
@@ -122,9 +145,14 @@ export const Authorizations = ({ caseId }: { caseId: string }) => {
                 <label className="block text-gray-700 mb-1">Court Case Number</label>
                 <input type="text" value={courtCaseNumber} onChange={(e) => setCourtCaseNumber(e.target.value)} className="w-full p-2 border border-gray-300 rounded" />
               </div>
-              <div>
+              <div className="relative z-30">
                 <label className="block text-gray-700 mb-1">Court Name</label>
-                <input type="text" value={courtName} onChange={(e) => setCourtName(e.target.value)} className="w-full p-2 border border-gray-300 rounded" />
+                <SearchableSelect
+                  value={courtName}
+                  onChange={setCourtName}
+                  fetchOptions={fetchCourts}
+                  placeholder="Search for a court..."
+                />
               </div>
             </>
           )}
@@ -139,9 +167,14 @@ export const Authorizations = ({ caseId }: { caseId: string }) => {
                 <label className="block text-gray-700 mb-1">ISD Officer Name</label>
                 <input type="text" value={isdOfficerName} onChange={(e) => setIsdOfficerName(e.target.value)} className="w-full p-2 border border-gray-300 rounded" />
               </div>
-              <div>
+              <div className="relative z-20">
                 <label className="block text-gray-700 mb-1">Police Station</label>
-                <input type="text" value={policeStation} onChange={(e) => setPoliceStation(e.target.value)} className="w-full p-2 border border-gray-300 rounded" />
+                <SearchableSelect
+                  value={policeStation}
+                  onChange={setPoliceStation}
+                  fetchOptions={fetchPoliceStations}
+                  placeholder="Search for a police station..."
+                />
               </div>
             </>
           )}
@@ -156,9 +189,14 @@ export const Authorizations = ({ caseId }: { caseId: string }) => {
                 <label className="block text-gray-700 mb-1">Court Case Number</label>
                 <input type="text" value={courtCaseNumber} onChange={(e) => setCourtCaseNumber(e.target.value)} className="w-full p-2 border border-gray-300 rounded" />
               </div>
-              <div>
+              <div className="relative z-10">
                 <label className="block text-gray-700 mb-1">Court Name</label>
-                <input type="text" value={courtName} onChange={(e) => setCourtName(e.target.value)} className="w-full p-2 border border-gray-300 rounded" />
+                <SearchableSelect
+                  value={courtName}
+                  onChange={setCourtName}
+                  fetchOptions={fetchCourts}
+                  placeholder="Search for a court..."
+                />
               </div>
               <div>
                 <label className="block text-gray-700 mb-1">Court Date</label>

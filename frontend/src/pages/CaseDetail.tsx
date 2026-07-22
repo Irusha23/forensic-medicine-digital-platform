@@ -115,7 +115,7 @@ export const CaseDetail = () => {
           {activeTab === 'INVESTIGATIONS' && <Investigations caseId={id!} />}
           {activeTab === 'EVIDENCE' && <Evidence caseId={id!} />}
           {activeTab === 'REFERRALS' && <Referrals caseId={id!} />}
-          {activeTab === 'MEDIA' && <MediaGallery caseId={id!} />}
+          {activeTab === 'MEDIA' && <MediaGallery caseId={id!} caseType={caseData.case_type_lu?.label || 'Clinical'} />}
           {activeTab === 'COURT' && <CourtEvents caseId={id!} />}
           {activeTab === 'AUDIT' && <AuditTrail caseId={id!} />}
         </div>

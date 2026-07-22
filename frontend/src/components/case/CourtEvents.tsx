@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../api/client';
+import { SearchableSelect } from '../common/SearchableSelect';
 
 export const CourtEvents = ({ caseId }: { caseId: string }) => {
   const [events, setEvents] = useState<any[]>([]);
@@ -18,13 +19,24 @@ export const CourtEvents = ({ caseId }: { caseId: string }) => {
 
   const fetchEvents = async () => {
     try {
-      const res = await api.get(`/cases/${caseId}/court-events`);
-      setEvents(res.data);
+      const eventsRes = await api.get(`/cases/${caseId}/court-events`);
+      setEvents(eventsRes.data);
     } catch (err) {
       setError('Failed to load court events');
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchCourts = async (query: string) => {
+    const res = await api.get('/courts');
+    const filtered = res.data.filter((c: any) => 
+      c.court_name.toLowerCase().includes(query.toLowerCase())
+    );
+    return filtered.map((c: any) => ({
+      label: c.court_name,
+      value: c.court_name
+    }));
   };
 
   useEffect(() => {
@@ -95,9 +107,14 @@ export const CourtEvents = ({ caseId }: { caseId: string }) => {
                 <option value="OTHER">Other</option>
               </select>
             </div>
-            <div className="col-span-2">
+            <div className="col-span-2 relative z-20">
               <label className="block text-sm font-medium mb-1">Court Name</label>
-              <input type="text" required className="w-full border p-2" value={newEvent.court_name} onChange={e => setNewEvent({...newEvent, court_name: e.target.value})} />
+              <SearchableSelect
+                value={newEvent.court_name}
+                onChange={val => setNewEvent({...newEvent, court_name: val})}
+                fetchOptions={fetchCourts}
+                placeholder="Search for a court..."
+              />
             </div>
             <div className="col-span-2">
               <label className="block text-sm font-medium mb-1">Outcome or Response</label>

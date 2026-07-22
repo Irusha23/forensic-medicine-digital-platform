@@ -13,6 +13,7 @@ import { Users } from './pages/Users';
 import { PoliceStations } from './pages/PoliceStations';
 import { Courts } from './pages/Courts';
 import { Patients } from './pages/Patients';
+import { GlobalAuditLog } from './pages/GlobalAuditLog';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
               <Route path="/patients" element={<Patients />} />
               <Route path="/police-stations" element={<PoliceStations />} />
               <Route path="/courts" element={<Courts />} />
+              <Route path="/audit-logs" element={<GlobalAuditLog />} />
             </Route>
           </Route>
         </Routes>

@@ -19,10 +19,12 @@ export const Layout = () => {
         <div className="p-4 text-xl font-bold border-b border-gray-700">
           {user?.username ? `Welcome, ${user.username}` : 'FMDP Admin'}
         </div>
-        <nav className="flex-1 p-4 space-y-2">
-          <Link to="/" className="block p-2 hover:bg-gray-800 rounded mb-4">Cases</Link>
-          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4 mb-2">Subjects</div>
-          <Link to="/patients" className="block p-2 hover:bg-gray-800 rounded mb-4 pl-4 text-sm">All Patients & Subjects</Link>
+        <nav className="flex-1 flex flex-col p-4 space-y-1 overflow-y-auto">
+          <Link to="/" className="block p-2 hover:bg-gray-800 rounded">Cases</Link>
+          
+          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2">Subjects</div>
+          <Link to="/patients" className="block p-2 hover:bg-gray-800 rounded pl-4 text-sm">All Patients & Subjects</Link>
+          
           <RequireRole roles={['Admin', 'Doctor', 'Clerk']}>
             <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2">Users</div>
             <Link to="/users" className="block p-2 hover:bg-gray-800 rounded text-sm pl-4">All Users</Link>
@@ -30,15 +32,23 @@ export const Layout = () => {
             <Link to="/users?role=JMO" className="block p-2 hover:bg-gray-800 rounded text-sm pl-4">JMOs</Link>
             <Link to="/users?role=Doctor" className="block p-2 hover:bg-gray-800 rounded text-sm pl-4">Doctors</Link>
             <Link to="/users?role=Clerk" className="block p-2 hover:bg-gray-800 rounded text-sm pl-4">Clerks</Link>
-            <Link to="/users?role=Researcher" className="block p-2 hover:bg-gray-800 rounded mb-4 text-sm pl-4">Researchers</Link>
+            <Link to="/users?role=Researcher" className="block p-2 hover:bg-gray-800 rounded text-sm pl-4">Researchers</Link>
             
             <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2">Registries</div>
-            <Link to="/police-stations" className="block p-2 hover:bg-gray-800 rounded mb-2">Police Stations</Link>
-            <Link to="/courts" className="block p-2 hover:bg-gray-800 rounded mb-4">Courts</Link>
+            <Link to="/police-stations" className="block p-2 hover:bg-gray-800 rounded">Police Stations</Link>
+            <Link to="/courts" className="block p-2 hover:bg-gray-800 rounded">Courts</Link>
           </RequireRole>
-          <button onClick={handleLogout} className="w-full text-left p-2 hover:bg-gray-800 rounded mt-auto text-red-400">
-            Logout
-          </button>
+          
+          <RequireRole roles={['Admin']}>
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2">System</div>
+            <Link to="/audit-logs" className="block p-2 hover:bg-gray-800 rounded">Global Audit Log</Link>
+          </RequireRole>
+
+          <div className="mt-auto pt-4">
+            <button onClick={handleLogout} className="w-full text-left p-2 hover:bg-gray-800 rounded text-red-400">
+              Logout
+            </button>
+          </div>
         </nav>
       </div>
       <div className="flex-1 flex flex-col overflow-hidden">
