@@ -9,11 +9,16 @@ export const Investigations = ({ caseId }: { caseId: string }) => {
   
   const [newInv, setNewInv] = useState({ 
     investigation_type: '', 
-    status: 'PENDING',
     requested_date: '',
-    completed_date: '',
     laboratory_name: '',
     sample_details: ''
+  });
+
+  const [updatingInvId, setUpdatingInvId] = useState<string | null>(null);
+  const [updateData, setUpdateData] = useState({
+    status: 'COMPLETED',
+    completed_date: '',
+    summary: ''
   });
 
   const fetchInvestigations = async () => {
@@ -38,15 +43,30 @@ export const Investigations = ({ caseId }: { caseId: string }) => {
     try {
       await api.post(`/cases/${caseId}/investigations`, {
         ...newInv,
-        requested_date: newInv.requested_date || null,
-        completed_date: newInv.completed_date || null
+        status: 'PENDING',
+        requested_date: newInv.requested_date || null
       });
-      setNewInv({ investigation_type: '', status: 'PENDING', requested_date: '', completed_date: '', laboratory_name: '', sample_details: '' });
+      setNewInv({ investigation_type: '', requested_date: '', laboratory_name: '', sample_details: '' });
       fetchInvestigations();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to create investigation');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!updatingInvId) return;
+    try {
+      await api.put(`/investigations/${updatingInvId}`, {
+        ...updateData,
+        completed_date: updateData.completed_date || null
+      });
+      setUpdatingInvId(null);
+      fetchInvestigations();
+    } catch (err: any) {
+      alert(err.response?.data?.error || 'Failed to update investigation');
     }
   };
 
@@ -86,17 +106,6 @@ export const Investigations = ({ caseId }: { caseId: string }) => {
               />
             </div>
             <div>
-              <label className="block font-medium mb-1 text-sm">Initial Status</label>
-              <select
-                className="w-full border border-gray-300 p-2 text-sm"
-                value={newInv.status}
-                onChange={e => setNewInv({ ...newInv, status: e.target.value })}
-              >
-                <option value="PENDING">Pending</option>
-                <option value="COMPLETED">Completed</option>
-              </select>
-            </div>
-            <div>
               <label className="block font-medium mb-1 text-sm">Requested Date</label>
               <input
                 type="date"
@@ -104,15 +113,6 @@ export const Investigations = ({ caseId }: { caseId: string }) => {
                 value={newInv.requested_date}
                 onChange={e => setNewInv({ ...newInv, requested_date: e.target.value })}
                 required
-              />
-            </div>
-            <div>
-              <label className="block font-medium mb-1 text-sm">Completed Date</label>
-              <input
-                type="date"
-                className="w-full border border-gray-300 p-2 text-sm"
-                value={newInv.completed_date}
-                onChange={e => setNewInv({ ...newInv, completed_date: e.target.value })}
               />
             </div>
             <div>
@@ -142,6 +142,52 @@ export const Investigations = ({ caseId }: { caseId: string }) => {
         </form>
       </div>
 
+      {updatingInvId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg max-w-md w-full">
+            <h3 className="font-bold text-lg mb-4">Add Investigation Results</h3>
+            <form onSubmit={handleUpdate} className="space-y-4">
+              <div>
+                <label className="block font-medium mb-1 text-sm">Completed Date</label>
+                <input
+                  type="date"
+                  className="w-full border border-gray-300 p-2 text-sm"
+                  value={updateData.completed_date}
+                  onChange={e => setUpdateData({ ...updateData, completed_date: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-medium mb-1 text-sm">Status</label>
+                <select
+                  className="w-full border border-gray-300 p-2 text-sm"
+                  value={updateData.status}
+                  onChange={e => setUpdateData({ ...updateData, status: e.target.value })}
+                  required
+                >
+                  <option value="PENDING">Pending</option>
+                  <option value="COMPLETED">Completed</option>
+                </select>
+              </div>
+              <div>
+                <label className="block font-medium mb-1 text-sm">Result Summary</label>
+                <textarea
+                  className="w-full border border-gray-300 p-2 text-sm"
+                  rows={3}
+                  value={updateData.summary}
+                  onChange={e => setUpdateData({ ...updateData, summary: e.target.value })}
+                  required
+                ></textarea>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <button type="button" onClick={() => setUpdatingInvId(null)} className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-sm">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 text-sm">Save Results</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <table className="w-full text-left border-collapse text-sm border border-gray-300">
         <thead>
           <tr className="bg-gray-100 border-b border-gray-300">
@@ -160,22 +206,40 @@ export const Investigations = ({ caseId }: { caseId: string }) => {
             investigations.map((inv: any) => (
               <tr key={inv.investigation_id} className="border-b border-gray-200 hover:bg-gray-50">
                 <td className="p-2 border-r border-gray-300 font-medium">{inv.investigation_type}</td>
-                <td className="p-2 border-r border-gray-300">{inv.status}</td>
+                <td className="p-2 border-r border-gray-300">
+                  <span className={`px-2 py-1 text-xs font-bold rounded ${inv.status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                    {inv.status}
+                  </span>
+                </td>
                 <td className="p-2 border-r border-gray-300">{inv.requested_date ? new Date(inv.requested_date).toLocaleDateString() : '-'}</td>
                 <td className="p-2 border-r border-gray-300">{inv.completed_date ? new Date(inv.completed_date).toLocaleDateString() : '-'}</td>
-                <td className="p-2 border-r border-gray-300">{inv.summary || 'N/A'}</td>
+                <td className="p-2 border-r border-gray-300">{inv.summary || '-'}</td>
                 <td className="p-2">
-                  <div className="flex items-center space-x-2">
-                    <input 
-                      type="file" 
-                      className="text-xs w-48"
-                      onChange={(e) => {
-                        if (e.target.files?.[0]) handleFileUpload(inv.investigation_id, e.target.files[0]);
-                      }}
-                    />
-                    {inv.media && inv.media.length > 0 && (
-                      <span className="text-xs text-green-600 font-bold">{inv.media.length} file(s)</span>
+                  <div className="flex flex-col space-y-2">
+                    {inv.status === 'PENDING' && (
+                      <button 
+                        onClick={() => {
+                          setUpdateData({ status: 'COMPLETED', completed_date: '', summary: '' });
+                          setUpdatingInvId(inv.investigation_id);
+                        }}
+                        className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded w-fit hover:bg-indigo-200 font-medium"
+                      >
+                        Add Results
+                      </button>
                     )}
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs text-gray-500">Report:</span>
+                      <input 
+                        type="file" 
+                        className="text-xs w-48"
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) handleFileUpload(inv.investigation_id, e.target.files[0]);
+                        }}
+                      />
+                      {inv.media && inv.media.length > 0 && (
+                        <span className="text-xs text-green-600 font-bold">{inv.media.length} file(s)</span>
+                      )}
+                    </div>
                   </div>
                 </td>
               </tr>

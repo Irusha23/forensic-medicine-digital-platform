@@ -7,6 +7,7 @@ export const CaseInfo = ({ caseData, onUpdate }: { caseData: any, onUpdate: () =
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState('');
   const [doctors, setDoctors] = useState<any[]>([]);
+  const [policeStations, setPoliceStations] = useState<any[]>([]);
 
   const fetchDoctors = async () => {
     try {
@@ -19,8 +20,18 @@ export const CaseInfo = ({ caseData, onUpdate }: { caseData: any, onUpdate: () =
     }
   };
 
+  const fetchPoliceStations = async () => {
+    try {
+      const res = await api.get('/police-stations');
+      setPoliceStations(res.data);
+    } catch (err) {
+      console.error('Failed to fetch police stations', err);
+    }
+  };
+
   useEffect(() => {
     fetchDoctors();
+    fetchPoliceStations();
   }, []);
 
   const handleStatusChange = async (newStatus: string) => {
@@ -44,6 +55,19 @@ export const CaseInfo = ({ caseData, onUpdate }: { caseData: any, onUpdate: () =
       onUpdate();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to assign doctor');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handlePoliceStationAssign = async (stationId: string) => {
+    setUpdating(true);
+    setError('');
+    try {
+      await api.put(`/cases/${caseData.case_id}`, { police_station_id: stationId ? stationId : null });
+      onUpdate();
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to reassign police station');
     } finally {
       setUpdating(false);
     }
@@ -180,6 +204,23 @@ export const CaseInfo = ({ caseData, onUpdate }: { caseData: any, onUpdate: () =
               </div>
             ) : (
               <p className="text-sm text-gray-400 italic">No police station linked.</p>
+            )}
+
+            {hasRole(['Admin', 'Clerk']) && (
+              <div className="pt-2 border-t mt-2">
+                <label className="block text-xs font-medium text-gray-500 mb-1">Reassign Police Station</label>
+                <select
+                  disabled={updating}
+                  className="w-full border border-gray-300 p-1.5 text-sm bg-white rounded cursor-pointer"
+                  value={caseData.police_station_id ? caseData.police_station_id.toString() : ''}
+                  onChange={(e) => handlePoliceStationAssign(e.target.value)}
+                >
+                  <option value="">Unassigned</option>
+                  {policeStations.map(ps => (
+                    <option key={ps.police_station_id} value={ps.police_station_id}>{ps.station_name}</option>
+                  ))}
+                </select>
+              </div>
             )}
           </div>
 
