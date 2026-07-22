@@ -1,7 +1,7 @@
 import prisma from '../lib/prisma';
 
 export async function createSubject(data: any) {
-  let age = null;
+  let age: number | null = null;
   if (data.date_of_birth) {
     const dob = new Date(data.date_of_birth);
     const today = new Date();
