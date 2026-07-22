@@ -26,7 +26,8 @@ export async function transitionStatusController(req: Request, res: Response) {
 export async function createFindingController(req: Request, res: Response) {
   try {
     const { id } = req.params;
-    const finding = await createFinding(id, req.body);
+    const userId = req.user?.userId;
+    const finding = await createFinding(id, { ...req.body, recorded_by: userId });
     res.status(201).json(finding);
   } catch (e: any) {
     res.status(500).json({ error: e.message || 'failed to create finding' });
