@@ -9,7 +9,8 @@ export async function createAuthorization(caseId: string | number, data: any) {
         issue_date: data.issue_date ? new Date(data.issue_date) : null,
         issuing_authority: data.issuing_authority,
         remarks: data.remarks,
-        details: data.details || {}
+        details: data.details || {},
+        document_id: data.document_id ? BigInt(data.document_id) : null
       }
     });
 
@@ -53,7 +54,8 @@ export async function getAuthorizationsByCase(caseId: string | number) {
     include: {
       court_order: true,
       inquest_order: true,
-      summon: true
+      summon: true,
+      documents: true
     },
     orderBy: { created_at: 'desc' }
   });

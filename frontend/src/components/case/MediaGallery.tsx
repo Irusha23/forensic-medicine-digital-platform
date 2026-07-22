@@ -13,11 +13,11 @@ export const MediaGallery = ({ caseId, caseType }: { caseId: string, caseType?: 
   const isClinical = caseType === 'Clinical';
   
   const clinicalCategories = [
-    'MLEF', 'MLR', 'Investigation Findings', 'Referral Reports', 'Summons/Requests', 'Photographs', 'Other'
+    'Photographs', 'Videos', 'Audio', 'General Evidence', 'Other'
   ];
   
   const autopsyCategories = [
-    'PMR', 'Cause of Death Form', 'Inquest/Court Order', 'Pre-autopsy Information', 'Investigation Findings', 'Photographs', 'Other'
+    'Photographs', 'Videos', 'Audio', 'General Evidence', 'Other'
   ];
 
   const availableCategories = isClinical ? clinicalCategories : autopsyCategories;

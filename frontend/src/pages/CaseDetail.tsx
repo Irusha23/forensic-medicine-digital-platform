@@ -90,7 +90,7 @@ export const CaseDetail = () => {
             } else if (caseData.case_type_lu?.code === 'autopsy') {
               if (canViewMedical) tabs.push('AUTOPSY INTAKE', 'AUTOPSY FINDINGS');
             }
-            tabs.push('SUBJECTS', 'AUTHORIZATIONS');
+            tabs.push('SUBJECTS', 'AUTHORIZATIONS & DOCUMENTS');
             if (canViewMedical) tabs.push('FINDINGS', 'INVESTIGATIONS');
             tabs.push('EVIDENCE', 'REFERRALS', 'MEDIA', 'COURT', 'AUDIT');
             return tabs;
@@ -110,7 +110,7 @@ export const CaseDetail = () => {
           {activeTab === 'AUTOPSY INTAKE' && <AutopsyIntake caseData={caseData} onUpdate={fetchCase} />}
           {activeTab === 'AUTOPSY FINDINGS' && <AutopsyDetails caseId={id!} />}
           {activeTab === 'SUBJECTS' && <Subjects caseId={id!} />}
-          {activeTab === 'AUTHORIZATIONS' && <Authorizations caseId={id!} />}
+          {activeTab === 'AUTHORIZATIONS & DOCUMENTS' && <Authorizations caseId={id!} caseType={caseData.case_type_lu?.label || 'Clinical'} />}
           {activeTab === 'FINDINGS' && <Findings caseId={id!} />}
           {activeTab === 'INVESTIGATIONS' && <Investigations caseId={id!} />}
           {activeTab === 'EVIDENCE' && <Evidence caseId={id!} />}

@@ -89,7 +89,12 @@ router.post('/:id/subjects', authenticateJWT, authorize('Clerk', 'Doctor', 'Admi
 
 // Authorizations
 router.get('/:id/authorizations', authenticateJWT, authorize('Clerk', 'Doctor', 'Admin'), idValidator, listCaseAuthorizations);
-router.post('/:id/authorizations', authenticateJWT, authorize('Clerk', 'Doctor', 'Admin'), idValidator, addAuthorizationToCase);
+router.post('/:id/authorizations', authenticateJWT, authorize('Clerk', 'Doctor', 'Admin'), idValidator, (req, res, next) => {
+  multer.single('file')(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.message || 'File upload error' });
+    next();
+  });
+}, addAuthorizationToCase);
 
 // Referrals
 router.get('/:id/referrals', authenticateJWT, authorize('Clerk', 'Doctor', 'Admin'), idValidator, listCaseReferrals);
