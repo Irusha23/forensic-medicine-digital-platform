@@ -21,9 +21,19 @@ export const Layout = () => {
         </div>
         <nav className="flex-1 p-4 space-y-2">
           <Link to="/" className="block p-2 hover:bg-gray-800 rounded mb-4">Cases</Link>
+          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4 mb-2">Subjects</div>
+          <Link to="/patients" className="block p-2 hover:bg-gray-800 rounded mb-4 pl-4 text-sm">All Patients & Subjects</Link>
           <RequireRole roles={['Admin', 'Doctor', 'Clerk']}>
-            <Link to="/users" className="block p-2 hover:bg-gray-800 rounded mb-4">Users (Staff & Doctors)</Link>
-            <Link to="/police-stations" className="block p-2 hover:bg-gray-800 rounded mb-4">Police Stations</Link>
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2">Users</div>
+            <Link to="/users" className="block p-2 hover:bg-gray-800 rounded text-sm pl-4">All Users</Link>
+            <Link to="/users?role=Admin" className="block p-2 hover:bg-gray-800 rounded text-sm pl-4">Admins</Link>
+            <Link to="/users?role=JMO" className="block p-2 hover:bg-gray-800 rounded text-sm pl-4">JMOs</Link>
+            <Link to="/users?role=Doctor" className="block p-2 hover:bg-gray-800 rounded text-sm pl-4">Doctors</Link>
+            <Link to="/users?role=Clerk" className="block p-2 hover:bg-gray-800 rounded text-sm pl-4">Clerks</Link>
+            <Link to="/users?role=Researcher" className="block p-2 hover:bg-gray-800 rounded mb-4 text-sm pl-4">Researchers</Link>
+            
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mt-6 mb-2">Registries</div>
+            <Link to="/police-stations" className="block p-2 hover:bg-gray-800 rounded mb-2">Police Stations</Link>
             <Link to="/courts" className="block p-2 hover:bg-gray-800 rounded mb-4">Courts</Link>
           </RequireRole>
           <button onClick={handleLogout} className="w-full text-left p-2 hover:bg-gray-800 rounded mt-auto text-red-400">

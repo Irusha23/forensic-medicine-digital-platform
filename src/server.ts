@@ -15,6 +15,7 @@ import userRoutes from './api/routes/user.routes';
 import policeStationRoutes from './api/routes/police-station.routes';
 import courtRoutes from './api/routes/court.routes';
 import evidenceRoutes from './api/routes/evidence.routes';
+import patientRoutes from './api/routes/patient.routes';
 import { initCronJobs } from './jobs/cron';
 
 // Handle BigInt serialization globally so JWTs and JSON responses do not crash.
@@ -37,6 +38,7 @@ app.use('/api', investigationRoutes);
 app.use('/api', autopsyDetailsRoutes);
 app.use('/api', reportRoutes);
 app.use('/api', evidenceRoutes);
+app.use('/api/patients', patientRoutes);
 
 app.get('/health', (req, res) => res.json({ ok: true }));
 

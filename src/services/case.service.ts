@@ -231,6 +231,9 @@ export async function updateCase(caseId: string | number | bigint, input: any) {
   const id = toCaseId(caseId);
   const { case_number, case_type_id, case_status_id, status, assigned_doctor_id, police_station_id, opened_date, closed_date, clinical, autopsy, version } = input;
 
+  const existingCase = await prisma.cases.findUnique({ where: { case_id: id } });
+  if (!existingCase) throw new Error("Case not found");
+
   const updateData: any = {};
   if (case_number !== undefined) updateData.case_number = case_number;
   if (case_type_id !== undefined) updateData.case_type_id = case_type_id ? Number(case_type_id) : null;
@@ -239,8 +242,6 @@ export async function updateCase(caseId: string | number | bigint, input: any) {
   if (assigned_doctor_id !== undefined) updateData.assigned_doctor_id = assigned_doctor_id ? toCaseId(assigned_doctor_id) : null;
   if (police_station_id !== undefined) updateData.police_station_id = police_station_id ? Number(police_station_id) : null;
   if (opened_date !== undefined) updateData.opened_date = opened_date ? new Date(opened_date) : null;
-  if (closed_date !== undefined) updateData.closed_date = closed_date ? new Date(closed_date) : null;
-
   if (closed_date !== undefined) updateData.closed_date = closed_date ? new Date(closed_date) : null;
 
   const isClosing = (status === 'CLOSED' || status === 'closed') || (case_status_id && Number(case_status_id) === 2);
@@ -268,6 +269,23 @@ export async function updateCase(caseId: string | number | bigint, input: any) {
       where: { case_id: id }, 
       data: { ...updateData, version: { increment: 1 } } 
     });
+  }
+
+  // Notification Trigger: Alert doctor when newly assigned
+  if (updated.assigned_doctor_id && updated.assigned_doctor_id !== existingCase.assigned_doctor_id) {
+    try {
+      const { createNotification } = require('./notification.service');
+      await createNotification({
+        title: 'New Case Assigned',
+        message: `You have been assigned to case ${updated.case_number}.`,
+        receiver_user_id: updated.assigned_doctor_id,
+        notification_type: 'CASE_ASSIGNED',
+        related_entity_id: updated.case_id.toString(),
+        related_entity_type: 'cases'
+      });
+    } catch (e) {
+      console.error('Failed to send case assignment notification:', e);
+    }
   }
 
   if (clinical) {

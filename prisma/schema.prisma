@@ -475,3 +475,10 @@ model users {
   report                                              report[]
   user_role                                           user_role[]
 }
+
+model courts {
+  court_id       Int       @id @default(autoincrement())
+  court_name     String    @unique(map: "court_name") @db.VarChar(255)
+  location       String?   @db.VarChar(255)
+  contact_number String?   @db.VarChar(50)
+}

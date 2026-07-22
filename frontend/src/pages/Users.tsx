@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../api/client';
 import { UserFormModal } from '../components/users/UserFormModal';
 
@@ -13,6 +14,8 @@ export const Users = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [searchParams] = useSearchParams();
+  const roleFilter = searchParams.get('role');
 
   const fetchUsers = async () => {
     try {
@@ -41,7 +44,9 @@ export const Users = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">User Management Portal</h1>
+        <h1 className="text-2xl font-bold">
+          {roleFilter ? `${roleFilter}s` : 'User Management Portal'}
+        </h1>
         <RequireRole roles={['Admin']}>
           <button 
             onClick={() => setShowModal(true)} 
@@ -71,7 +76,7 @@ export const Users = () => {
             ) : users.length === 0 ? (
               <tr><td colSpan={5} className="p-4 text-center">No users found.</td></tr>
             ) : (
-              users.map(u => (
+              (roleFilter ? users.filter(u => u.roles.includes(roleFilter)) : users).map(u => (
                 <tr key={u.user_id} className="border-b hover:bg-gray-50">
                   <td className="p-3">
                     <div className="font-medium text-blue-700">{u.username}</div>

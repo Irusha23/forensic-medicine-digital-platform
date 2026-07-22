@@ -14,7 +14,7 @@ router.get('/cases/:id/evidence', authenticateJWT, async (req, res) => {
       where: { case_id: caseId },
       include: {
         chain_of_custody: {
-          orderBy: { transferred_at: 'desc' }
+          orderBy: { date_time: 'desc' }
         }
       }
     });
@@ -58,11 +58,10 @@ router.post('/evidence/:id/custody', authenticateJWT, [
     const custody = await prisma.chain_of_custody.create({
       data: {
         evidence_id: evidenceId,
-        transferred_by: req.user?.userId ? BigInt(req.user.userId) : null,
+        transferred_from: req.user?.username || null,
         transferred_to: req.body.transferred_to,
-        transferred_at: new Date(),
-        purpose: req.body.purpose,
-        notes: req.body.notes
+        date_time: new Date(),
+        purpose: req.body.purpose
       }
     });
     res.status(201).json(custody);
