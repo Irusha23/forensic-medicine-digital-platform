@@ -36,9 +36,9 @@ router.delete('/:id', authenticateJWT, authorize('Doctor', 'Admin'), idValidator
 router.post('/:id/transition-status', authenticateJWT, authorize('Doctor', 'Admin'), idValidator, transitionStatusController);
 
 // Workflow: Findings/notes
-router.post('/:id/findings', authenticateJWT, authorize('Clerk', 'Doctor', 'Admin'), idValidator, createFindingController);
-router.get('/:id/findings', authenticateJWT, authorize('Clerk', 'Doctor', 'Admin'), idValidator, listFindingsController);
-router.put('/:id/findings/:findingId', authenticateJWT, authorize('Clerk', 'Doctor', 'Admin'), findingIdValidator, updateFindingController);
+router.post('/:id/findings', authenticateJWT, authorize('Doctor', 'Admin'), idValidator, createFindingController);
+router.get('/:id/findings', authenticateJWT, authorize('Doctor', 'Admin'), idValidator, listFindingsController);
+router.put('/:id/findings/:findingId', authenticateJWT, authorize('Doctor', 'Admin'), findingIdValidator, updateFindingController);
 router.delete('/:id/findings/:findingId', authenticateJWT, authorize('Doctor', 'Admin'), findingIdValidator, deleteFindingController);
 
 // Audit trail

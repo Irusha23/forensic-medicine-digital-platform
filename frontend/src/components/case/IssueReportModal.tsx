@@ -27,10 +27,12 @@ export const IssueReportModal = ({ caseId, caseNumber, onClose }: IssueReportMod
     setError('');
     
     try {
-      const res = await api.post(`/cases/${caseId}/report/issue`, formData, { responseType: 'blob' });
+      // First issue the report in the database
+      await api.post(`/cases/${caseId}/report/issue`, formData);
       
-      // Download the PDF blob
-      const url = window.URL.createObjectURL(new Blob([res.data]));
+      // Then download the PDF blob
+      const pdfRes = await api.get(`/cases/${caseId}/report?reportType=${formData.report_type}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([pdfRes.data]));
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `case_${caseNumber || caseId}_report.pdf`);
@@ -40,7 +42,19 @@ export const IssueReportModal = ({ caseId, caseNumber, onClose }: IssueReportMod
       
       onClose(); // Close modal on success
     } catch (err: any) {
-      setError('Failed to generate report. Make sure all backend services are running.');
+      if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else if (err.response?.data instanceof Blob) {
+        const text = await err.response.data.text();
+        try {
+          const json = JSON.parse(text);
+          setError(json.error || 'Failed to generate report.');
+        } catch {
+          setError('Failed to generate report.');
+        }
+      } else {
+        setError('Failed to generate report. Make sure all backend services are running.');
+      }
     } finally {
       setGenerating(false);
     }

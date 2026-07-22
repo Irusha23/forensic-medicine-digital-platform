@@ -34,11 +34,11 @@ describe('PUT /api/cases/:id Race Conditions', () => {
     expect(resGet.status).toBe(200);
     const version = resGet.body.version || 1; // Assuming we add a version field
     
-    // Client A wants to change status to 'CLOSED'
+    // Client A wants to change case_type_id to 2
     const reqA = request(app)
       .put(`/api/cases/${caseId}`)
       .set('Authorization', 'Bearer fake-token')
-      .send({ status: 'CLOSED', version });
+      .send({ case_type_id: 2, version });
 
     // Client B wants to change status to 'ARCHIVED'
     const reqB = request(app)
@@ -57,7 +57,7 @@ describe('PUT /api/cases/:id Race Conditions', () => {
     // Verify the final state in the database matches the one that succeeded
     const finalCase = await prisma.cases.findUnique({ where: { case_id: BigInt(caseId) } });
     if (resA.status === 200) {
-      expect(finalCase?.status).toBe('CLOSED');
+      expect(Number(finalCase?.case_type_id)).toBe(2);
     } else {
       expect(finalCase?.status).toBe('ARCHIVED');
     }

@@ -6,6 +6,15 @@ export async function listCaseController(req: Request, res: Response) {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 50;
     const cases = await listCases(page, limit);
+    const isClerk = req.user?.roles && req.user.roles.includes('Clerk') && !req.user.roles.includes('Doctor') && !req.user.roles.includes('Admin');
+    
+    if (isClerk) {
+      cases.data = cases.data.map((c: any) => {
+        const { clinical_case, autopsy_case, ...rest } = c;
+        return rest;
+      });
+    }
+
     res.json(cases);
   } catch (e: any) {
     res.status(500).json({ error: e.message || 'failed to list cases' });
@@ -17,6 +26,13 @@ export async function getCaseController(req: Request, res: Response) {
     const { id } = req.params;
     const item = await getCaseById(id);
     if (!item) return res.status(404).json({ error: 'Case not found' });
+    
+    const isClerk = req.user?.roles && req.user.roles.includes('Clerk') && !req.user.roles.includes('Doctor') && !req.user.roles.includes('Admin');
+    if (isClerk) {
+      const { clinical_case, autopsy_case, ...clerkSafeItem } = item as any;
+      return res.json(clerkSafeItem);
+    }
+    
     res.json(item);
   } catch (e: any) {
     res.status(500).json({ error: e.message || 'failed to fetch case' });

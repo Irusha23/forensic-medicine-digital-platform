@@ -4,6 +4,80 @@ function toCaseId(value: string | number | bigint) {
   return typeof value === 'string' ? BigInt(value) : BigInt(value);
 }
 
+export async function validateCaseReadyForClose(caseId: string | number | bigint) {
+  const id = toCaseId(caseId);
+  const fullCase = await prisma.cases.findUnique({
+    where: { case_id: id },
+    include: {
+      clinical_case: true,
+      autopsy_case: true,
+      investigation: true,
+      report: true,
+      case_type_lu: true
+    }
+  });
+
+  if (!fullCase) throw new Error("Case not found");
+
+  if (fullCase.case_type_lu?.code === 'clinical') {
+    if (!fullCase.clinical_case?.examination_findings || !fullCase.clinical_case?.provisional_diagnosis) {
+      throw new Error('Cannot close case: Clinical examination findings and provisional diagnosis must be filled.');
+    }
+  } else if (fullCase.case_type_lu?.code === 'autopsy') {
+    if (!fullCase.autopsy_case?.immediate_cause_of_death || !fullCase.autopsy_case?.manner_of_death) {
+      throw new Error('Cannot close case: Immediate cause of death and manner of death must be filled.');
+    }
+  }
+
+  const pendingInvestigations = fullCase.investigation.filter((inv: any) => inv.status !== 'COMPLETED');
+  if (pendingInvestigations.length > 0) {
+    throw new Error('Cannot close case: All investigations must be completed.');
+  }
+
+  if (fullCase.report.length === 0) {
+    throw new Error('Cannot close case: An official report must be issued first.');
+  }
+}
+
+export async function validateCaseReadyForReport(caseId: string | number | bigint) {
+  const id = toCaseId(caseId);
+  const fullCase = await prisma.cases.findUnique({
+    where: { case_id: id },
+    include: {
+      clinical_case: true,
+      autopsy_case: true,
+      investigation: true,
+      report: true,
+      case_type_lu: true
+    }
+  });
+
+  if (!fullCase) throw new Error("Case not found");
+
+  if (fullCase.status === 'CLOSED' || fullCase.status === 'closed' || (fullCase.case_status_id && Number(fullCase.case_status_id) === 2)) {
+    throw new Error('Cannot issue report: The case is already closed.');
+  }
+
+  if (fullCase.report && fullCase.report.length > 0) {
+    throw new Error('Cannot issue report: An official report has already been issued for this case.');
+  }
+
+  if (fullCase.case_type_lu?.code === 'clinical') {
+    if (!fullCase.clinical_case?.examination_findings || !fullCase.clinical_case?.provisional_diagnosis) {
+      throw new Error('Cannot issue report: Clinical examination findings and provisional diagnosis must be filled.');
+    }
+  } else if (fullCase.case_type_lu?.code === 'autopsy') {
+    if (!fullCase.autopsy_case?.immediate_cause_of_death || !fullCase.autopsy_case?.manner_of_death) {
+      throw new Error('Cannot issue report: Immediate cause of death and manner of death must be filled.');
+    }
+  }
+
+  const pendingInvestigations = fullCase.investigation.filter((inv: any) => inv.status !== 'COMPLETED');
+  if (pendingInvestigations.length > 0) {
+    throw new Error('Cannot issue report: All investigations must be completed.');
+  }
+}
+
 export async function listCases(page: number = 1, limit: number = 50) {
   const skip = (page - 1) * limit;
 
@@ -46,7 +120,8 @@ export async function getCaseById(caseId: string | number | bigint) {
       autopsy_case: true,
       users: true,
       media: true,
-      documents: true
+      documents: true,
+      report: true
     }
   });
 }
@@ -135,6 +210,11 @@ export async function updateCase(caseId: string | number | bigint, input: any) {
   if (closed_date !== undefined) updateData.closed_date = closed_date ? new Date(closed_date) : null;
 
   if (closed_date !== undefined) updateData.closed_date = closed_date ? new Date(closed_date) : null;
+
+  const isClosing = (status === 'CLOSED' || status === 'closed') || (case_status_id && Number(case_status_id) === 2);
+  if (isClosing) {
+    await validateCaseReadyForClose(id);
+  }
 
   let updated;
   if (version !== undefined) {

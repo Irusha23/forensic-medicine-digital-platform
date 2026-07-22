@@ -2,6 +2,8 @@ import request from 'supertest';
 import app from '../server';
 import prisma from '../lib/prisma';
 import * as authService from '../services/auth.service';
+import * as reportService from '../services/report.service';
+import * as caseService from '../services/case.service';
 
 jest.mock('../lib/prisma', () => ({
   __esModule: true,
@@ -18,6 +20,7 @@ jest.mock('../lib/prisma', () => ({
 describe('Report API endpoints', () => {
   beforeAll(() => {
     jest.spyOn(authService, 'verifyToken').mockReturnValue({ userId: 1, roles: ['Admin', 'Doctor'] });
+    jest.spyOn(caseService, 'validateCaseReadyForReport').mockResolvedValue(undefined);
   });
 
   afterAll(() => {

@@ -12,7 +12,7 @@ const idValidator = [
   validateRequest
 ];
 
-router.get('/cases/:id/report', authenticateJWT, authorize('Doctor', 'Admin', 'Clerk'), idValidator, generateReportController);
-router.post('/cases/:id/report/issue', authenticateJWT, authorize('Doctor', 'Admin', 'Clerk'), idValidator, issueReportController);
+router.get('/cases/:id/report', authenticateJWT, authorize('Doctor', 'Admin'), idValidator, generateReportController);
+router.post('/cases/:id/report/issue', authenticateJWT, authorize('Doctor', 'Admin'), idValidator, issueReportController);
 
 export default router;

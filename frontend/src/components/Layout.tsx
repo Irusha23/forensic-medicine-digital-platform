@@ -5,7 +5,7 @@ import { NotificationBell } from './layout/NotificationBell';
 import { RequireRole } from './layout/RequireRole';
 
 export const Layout = () => {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -16,7 +16,9 @@ export const Layout = () => {
   return (
     <div className="flex h-screen bg-gray-50">
       <div className="w-64 bg-gray-900 text-white flex flex-col">
-        <div className="p-4 text-xl font-bold border-b border-gray-700">FMDP Admin</div>
+        <div className="p-4 text-xl font-bold border-b border-gray-700">
+          {user?.username ? `Welcome, ${user.username}` : 'FMDP Admin'}
+        </div>
         <nav className="flex-1 p-4 space-y-2">
           <Link to="/" className="block p-2 hover:bg-gray-800 rounded mb-4">Cases</Link>
           <RequireRole roles={['Admin']}>

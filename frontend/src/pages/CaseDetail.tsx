@@ -15,9 +15,11 @@ import { AutopsyIntake } from '../components/case/AutopsyIntake';
 import { CourtEvents } from '../components/case/CourtEvents';
 import { IssueReportModal } from '../components/case/IssueReportModal';
 import { RequireRole } from '../components/layout/RequireRole';
+import { useAuth } from '../context/AuthContext';
 
 export const CaseDetail = () => {
   const { id } = useParams();
+  const { hasRole } = useAuth();
   const [caseData, setCaseData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -55,12 +57,19 @@ export const CaseDetail = () => {
           <h1 className="text-2xl font-bold">Case {caseData.case_number || id}</h1>
         </div>
         <RequireRole roles={['Admin', 'Doctor']}>
-          <button 
-            className="bg-green-600 text-white px-4 py-2 hover:bg-green-700 font-medium"
-            onClick={handleGenerateReportClick}
-          >
-            Issue Official Report
-          </button>
+          {!(caseData.status === 'CLOSED' || caseData.status === 'closed' || caseData.case_status_lu?.id === 2) && !(caseData.report && caseData.report.length > 0) && (
+            <button 
+              className="bg-green-600 text-white px-4 py-2 hover:bg-green-700 font-medium"
+              onClick={handleGenerateReportClick}
+            >
+              Issue Official Report
+            </button>
+          )}
+          {(caseData.report && caseData.report.length > 0) && (
+            <span className="bg-gray-100 text-gray-800 px-4 py-2 font-medium border rounded">
+              Report Issued
+            </span>
+          )}
         </RequireRole>
       </div>
 
@@ -78,12 +87,16 @@ export const CaseDetail = () => {
         <div className="flex border-b border-gray-300 bg-gray-50 flex-wrap">
           {(() => {
             let tabs = ['INFO'];
+            const canViewMedical = hasRole(['Doctor', 'Admin']);
+            
             if (caseData.case_type_lu?.code === 'clinical') {
-              tabs.push('CLINICAL');
+              if (canViewMedical) tabs.push('CLINICAL');
             } else if (caseData.case_type_lu?.code === 'autopsy') {
-              tabs.push('AUTOPSY INTAKE', 'AUTOPSY FINDINGS');
+              if (canViewMedical) tabs.push('AUTOPSY INTAKE', 'AUTOPSY FINDINGS');
             }
-            tabs.push('SUBJECTS', 'AUTHORIZATIONS', 'FINDINGS', 'INVESTIGATIONS', 'REFERRALS', 'MEDIA', 'COURT', 'AUDIT');
+            tabs.push('SUBJECTS', 'AUTHORIZATIONS');
+            if (canViewMedical) tabs.push('FINDINGS', 'INVESTIGATIONS');
+            tabs.push('REFERRALS', 'MEDIA', 'COURT', 'AUDIT');
             return tabs;
           })().map(tab => (
             <button

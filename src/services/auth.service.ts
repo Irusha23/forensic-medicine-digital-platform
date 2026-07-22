@@ -24,7 +24,7 @@ export async function authenticateUser(username: string, password: string) {
   const ok = await bcrypt.compare(password, user.password_hash);
   if (!ok) return null;
   const roles = user.user_role.map(ur => ur.roles.role_name);
-  const payload = { userId: user.user_id.toString(), roles };
+  const payload = { userId: user.user_id.toString(), roles, username: user.username };
   const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
   const refresh = jwt.sign({ userId: user.user_id.toString() }, JWT_SECRET, { expiresIn: '7d' });
   return { user, token, refresh };

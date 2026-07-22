@@ -19,12 +19,12 @@ const investigationIdValidator = [
   validateRequest
 ];
 
-router.get('/cases/:id/investigations', authenticateJWT, authorize('Clerk', 'Doctor', 'Admin'), idValidator, listInvestigationsController);
-router.post('/cases/:id/investigations', authenticateJWT, authorize('Clerk', 'Doctor', 'Admin'), idValidator, createInvestigationController);
-router.get('/investigations/:investigationId', authenticateJWT, authorize('Clerk', 'Doctor', 'Admin'), investigationIdValidator, getInvestigationController);
-router.put('/investigations/:investigationId', authenticateJWT, authorize('Clerk', 'Doctor', 'Admin'), investigationIdValidator, updateInvestigationController);
+router.get('/cases/:id/investigations', authenticateJWT, authorize('Doctor', 'Admin'), idValidator, listInvestigationsController);
+router.post('/cases/:id/investigations', authenticateJWT, authorize('Doctor', 'Admin'), idValidator, createInvestigationController);
+router.get('/investigations/:investigationId', authenticateJWT, authorize('Doctor', 'Admin'), investigationIdValidator, getInvestigationController);
+router.put('/investigations/:investigationId', authenticateJWT, authorize('Doctor', 'Admin'), investigationIdValidator, updateInvestigationController);
 router.delete('/investigations/:investigationId', authenticateJWT, authorize('Doctor', 'Admin'), investigationIdValidator, deleteInvestigationController);
-router.post('/investigations/:investigationId/media/upload', authenticateJWT, authorize('Clerk', 'Doctor', 'Admin'), investigationIdValidator, (req, res, next) => {
+router.post('/investigations/:investigationId/media/upload', authenticateJWT, authorize('Doctor', 'Admin'), investigationIdValidator, (req, res, next) => {
   multer.single('file')(req, res, (err) => {
     if (err) return res.status(400).json({ error: err.message || 'File upload error' });
     next();

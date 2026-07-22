@@ -1,4 +1,5 @@
 import prisma from '../lib/prisma';
+import { validateCaseReadyForClose } from './case.service';
 
 function toCaseId(value: string | number | bigint) {
   return typeof value === 'string' ? BigInt(value) : BigInt(value);
@@ -45,6 +46,10 @@ export async function transitionCaseStatus(caseId: string | number | bigint, new
 
   const caseRecord = await prisma.cases.findUnique({ where: { case_id: id } });
   if (!caseRecord) throw new Error('Case not found');
+
+  if (status.code === 'closed') {
+    await validateCaseReadyForClose(id);
+  }
 
   const updated = await prisma.cases.update({
     where: { case_id: id },

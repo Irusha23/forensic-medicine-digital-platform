@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { generateCaseReportPdf } from '../../services/report.service';
+import { validateCaseReadyForReport } from '../../services/case.service';
 import prisma from '../../lib/prisma';
 
 function toCaseId(value: string | number | bigint) {
@@ -30,6 +31,9 @@ export async function issueReportController(req: Request, res: Response) {
     const { report_type, final_opinion, recipient_name, recipient_designation, method_of_delivery, receipt_document_id } = req.body;
     const userId = (req as any).user?.userId; // Assuming user is injected by authenticateJWT
     
+    // Validate if the case has required findings and investigations
+    await validateCaseReadyForReport(id);
+
     // Create the report
     const report = await prisma.report.create({
       data: {
