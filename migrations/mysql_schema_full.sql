@@ -1,29 +1,8 @@
-﻿CREATE DATABASE IF NOT EXISTS forensic_platform CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_unicode_ci';
+CREATE DATABASE IF NOT EXISTS forensic_platform CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_unicode_ci';
 USE forensic_platform;
--- MySQL dump 10.13  Distrib 8.0.46, for Win64 (x86_64)
---
--- Host: localhost    Database: forensic_platform
--- ------------------------------------------------------
--- Server version	8.0.46
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
---
--- Table structure for table `audit_log`
---
 
 DROP TABLE IF EXISTS `audit_log`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `audit_log` (
   `log_id` bigint NOT NULL AUTO_INCREMENT,
   `user_id` bigint DEFAULT NULL,
@@ -38,15 +17,9 @@ CREATE TABLE `audit_log` (
   KEY `idx_audit_log_user` (`user_id`),
   CONSTRAINT `audit_log_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `autopsy_case`
---
 
 DROP TABLE IF EXISTS `autopsy_case`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `autopsy_case` (
   `case_id` bigint NOT NULL,
   `postmortem_number` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -70,15 +43,9 @@ CREATE TABLE `autopsy_case` (
   PRIMARY KEY (`case_id`),
   CONSTRAINT `autopsy_case_ibfk_1` FOREIGN KEY (`case_id`) REFERENCES `cases` (`case_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `autopsy_details`
---
 
 DROP TABLE IF EXISTS `autopsy_details`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `autopsy_details` (
   `case_id` bigint NOT NULL,
   `time_since_death_estimate` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -93,15 +60,9 @@ CREATE TABLE `autopsy_details` (
   PRIMARY KEY (`case_id`),
   CONSTRAINT `autopsy_details_ibfk_1` FOREIGN KEY (`case_id`) REFERENCES `cases` (`case_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `case_status_lu`
---
 
 DROP TABLE IF EXISTS `case_status_lu`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `case_status_lu` (
   `id` int NOT NULL AUTO_INCREMENT,
   `code` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -109,15 +70,9 @@ CREATE TABLE `case_status_lu` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `case_type_lu`
---
 
 DROP TABLE IF EXISTS `case_type_lu`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `case_type_lu` (
   `id` int NOT NULL AUTO_INCREMENT,
   `code` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -125,15 +80,9 @@ CREATE TABLE `case_type_lu` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `cases`
---
 
 DROP TABLE IF EXISTS `cases`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `cases` (
   `case_id` bigint NOT NULL AUTO_INCREMENT,
   `case_number` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -164,15 +113,9 @@ CREATE TABLE `cases` (
   CONSTRAINT `cases_ibfk_4` FOREIGN KEY (`police_station_id`) REFERENCES `police_stations` (`police_station_id`),
   CONSTRAINT `cases_patient_id_fkey` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=275 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `chain_of_custody`
---
 
 DROP TABLE IF EXISTS `chain_of_custody`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `chain_of_custody` (
   `custody_id` bigint NOT NULL AUTO_INCREMENT,
   `evidence_id` bigint DEFAULT NULL,
@@ -184,15 +127,9 @@ CREATE TABLE `chain_of_custody` (
   KEY `chain_of_custody_evidence_id_idx` (`evidence_id`),
   CONSTRAINT `chain_of_custody_evidence_id_fkey` FOREIGN KEY (`evidence_id`) REFERENCES `evidence` (`evidence_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `clinical_case`
---
 
 DROP TABLE IF EXISTS `clinical_case`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `clinical_case` (
   `case_id` bigint NOT NULL,
   `referral_source` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -210,15 +147,9 @@ CREATE TABLE `clinical_case` (
   PRIMARY KEY (`case_id`),
   CONSTRAINT `clinical_case_ibfk_1` FOREIGN KEY (`case_id`) REFERENCES `cases` (`case_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `court_event`
---
 
 DROP TABLE IF EXISTS `court_event`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `court_event` (
   `court_event_id` bigint NOT NULL AUTO_INCREMENT,
   `case_id` bigint DEFAULT NULL,
@@ -230,15 +161,9 @@ CREATE TABLE `court_event` (
   KEY `case_id` (`case_id`),
   CONSTRAINT `court_event_ibfk_1` FOREIGN KEY (`case_id`) REFERENCES `cases` (`case_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `court_order`
---
 
 DROP TABLE IF EXISTS `court_order`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `court_order` (
   `authorization_id` bigint NOT NULL,
   `court_order_number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -247,15 +172,9 @@ CREATE TABLE `court_order` (
   PRIMARY KEY (`authorization_id`),
   CONSTRAINT `court_order_ibfk_1` FOREIGN KEY (`authorization_id`) REFERENCES `legal_authorizations` (`authorization_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `courts`
---
 
 DROP TABLE IF EXISTS `courts`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `courts` (
   `court_id` int NOT NULL AUTO_INCREMENT,
   `court_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -264,15 +183,9 @@ CREATE TABLE `courts` (
   PRIMARY KEY (`court_id`),
   UNIQUE KEY `court_name` (`court_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `document_type_lu`
---
 
 DROP TABLE IF EXISTS `document_type_lu`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `document_type_lu` (
   `id` int NOT NULL AUTO_INCREMENT,
   `code` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -280,15 +193,9 @@ CREATE TABLE `document_type_lu` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `documents`
---
 
 DROP TABLE IF EXISTS `documents`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `documents` (
   `document_id` bigint NOT NULL AUTO_INCREMENT,
   `case_id` bigint DEFAULT NULL,
@@ -311,15 +218,9 @@ CREATE TABLE `documents` (
   CONSTRAINT `documents_ibfk_2` FOREIGN KEY (`document_type_id`) REFERENCES `document_type_lu` (`id`),
   CONSTRAINT `documents_ibfk_3` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `evidence`
---
 
 DROP TABLE IF EXISTS `evidence`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `evidence` (
   `evidence_id` bigint NOT NULL AUTO_INCREMENT,
   `case_id` bigint DEFAULT NULL,
@@ -331,15 +232,9 @@ CREATE TABLE `evidence` (
   KEY `evidence_case_id_idx` (`case_id`),
   CONSTRAINT `evidence_case_id_fkey` FOREIGN KEY (`case_id`) REFERENCES `cases` (`case_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `finding`
---
 
 DROP TABLE IF EXISTS `finding`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `finding` (
   `finding_id` bigint NOT NULL AUTO_INCREMENT,
   `case_id` bigint DEFAULT NULL,
@@ -353,15 +248,9 @@ CREATE TABLE `finding` (
   CONSTRAINT `finding_ibfk_1` FOREIGN KEY (`case_id`) REFERENCES `cases` (`case_id`) ON DELETE CASCADE,
   CONSTRAINT `finding_ibfk_2` FOREIGN KEY (`recorded_by`) REFERENCES `users` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `inquest_order`
---
 
 DROP TABLE IF EXISTS `inquest_order`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `inquest_order` (
   `authorization_id` bigint NOT NULL,
   `inquest_order_number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -370,15 +259,9 @@ CREATE TABLE `inquest_order` (
   PRIMARY KEY (`authorization_id`),
   CONSTRAINT `inquest_order_ibfk_1` FOREIGN KEY (`authorization_id`) REFERENCES `legal_authorizations` (`authorization_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `investigation`
---
 
 DROP TABLE IF EXISTS `investigation`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `investigation` (
   `investigation_id` bigint NOT NULL AUTO_INCREMENT,
   `case_id` bigint DEFAULT NULL,
@@ -397,15 +280,9 @@ CREATE TABLE `investigation` (
   CONSTRAINT `investigation_ibfk_1` FOREIGN KEY (`case_id`) REFERENCES `cases` (`case_id`) ON DELETE CASCADE,
   CONSTRAINT `investigation_ibfk_2` FOREIGN KEY (`document_id`) REFERENCES `documents` (`document_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `legal_authorizations`
---
 
 DROP TABLE IF EXISTS `legal_authorizations`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `legal_authorizations` (
   `authorization_id` bigint NOT NULL AUTO_INCREMENT,
   `case_id` bigint NOT NULL,
@@ -422,15 +299,9 @@ CREATE TABLE `legal_authorizations` (
   CONSTRAINT `legal_authorizations_ibfk_1` FOREIGN KEY (`case_id`) REFERENCES `cases` (`case_id`),
   CONSTRAINT `legal_authorizations_ibfk_2` FOREIGN KEY (`document_id`) REFERENCES `documents` (`document_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `media`
---
 
 DROP TABLE IF EXISTS `media`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `media` (
   `media_id` bigint NOT NULL AUTO_INCREMENT,
   `case_id` bigint DEFAULT NULL,
@@ -453,15 +324,9 @@ CREATE TABLE `media` (
   CONSTRAINT `media_ibfk_3` FOREIGN KEY (`captured_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `media_ibfk_4` FOREIGN KEY (`investigation_id`) REFERENCES `investigation` (`investigation_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `media_type_lu`
---
 
 DROP TABLE IF EXISTS `media_type_lu`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `media_type_lu` (
   `id` int NOT NULL AUTO_INCREMENT,
   `code` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -469,15 +334,9 @@ CREATE TABLE `media_type_lu` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `notification_priority_lu`
---
 
 DROP TABLE IF EXISTS `notification_priority_lu`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `notification_priority_lu` (
   `id` int NOT NULL AUTO_INCREMENT,
   `code` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -485,15 +344,9 @@ CREATE TABLE `notification_priority_lu` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `notifications`
---
 
 DROP TABLE IF EXISTS `notifications`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `notifications` (
   `notification_id` bigint NOT NULL AUTO_INCREMENT,
   `sender_user_id` bigint DEFAULT NULL,
@@ -517,15 +370,9 @@ CREATE TABLE `notifications` (
   CONSTRAINT `notifications_ibfk_3` FOREIGN KEY (`case_id`) REFERENCES `cases` (`case_id`),
   CONSTRAINT `notifications_ibfk_4` FOREIGN KEY (`priority_id`) REFERENCES `notification_priority_lu` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `patients`
---
 
 DROP TABLE IF EXISTS `patients`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `patients` (
   `patient_id` bigint NOT NULL AUTO_INCREMENT,
   `full_name` varchar(400) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -537,15 +384,9 @@ CREATE TABLE `patients` (
   `age` int DEFAULT NULL,
   PRIMARY KEY (`patient_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `police_stations`
---
 
 DROP TABLE IF EXISTS `police_stations`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `police_stations` (
   `police_station_id` int NOT NULL AUTO_INCREMENT,
   `station_name` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -553,15 +394,9 @@ CREATE TABLE `police_stations` (
   `contact_number` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`police_station_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `referral`
---
 
 DROP TABLE IF EXISTS `referral`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `referral` (
   `referral_id` bigint NOT NULL AUTO_INCREMENT,
   `case_id` bigint DEFAULT NULL,
@@ -579,15 +414,9 @@ CREATE TABLE `referral` (
   CONSTRAINT `referral_ibfk_2` FOREIGN KEY (`document_id`) REFERENCES `documents` (`document_id`),
   CONSTRAINT `referral_ibfk_3` FOREIGN KEY (`referred_to_user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `report`
---
 
 DROP TABLE IF EXISTS `report`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `report` (
   `report_id` bigint NOT NULL AUTO_INCREMENT,
   `case_id` bigint DEFAULT NULL,
@@ -610,15 +439,9 @@ CREATE TABLE `report` (
   CONSTRAINT `report_ibfk_2` FOREIGN KEY (`issued_by`) REFERENCES `users` (`user_id`),
   CONSTRAINT `report_ibfk_3` FOREIGN KEY (`document_id`) REFERENCES `documents` (`document_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `report_issuance`
---
 
 DROP TABLE IF EXISTS `report_issuance`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `report_issuance` (
   `issuance_id` bigint NOT NULL AUTO_INCREMENT,
   `report_id` bigint DEFAULT NULL,
@@ -633,15 +456,9 @@ CREATE TABLE `report_issuance` (
   CONSTRAINT `report_issuance_ibfk_1` FOREIGN KEY (`report_id`) REFERENCES `report` (`report_id`) ON DELETE CASCADE,
   CONSTRAINT `report_issuance_ibfk_2` FOREIGN KEY (`receipt_document_id`) REFERENCES `documents` (`document_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `review_visit`
---
 
 DROP TABLE IF EXISTS `review_visit`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `review_visit` (
   `review_id` bigint NOT NULL AUTO_INCREMENT,
   `case_id` bigint DEFAULT NULL,
@@ -652,15 +469,9 @@ CREATE TABLE `review_visit` (
   KEY `case_id` (`case_id`),
   CONSTRAINT `review_visit_ibfk_1` FOREIGN KEY (`case_id`) REFERENCES `cases` (`case_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `roles`
---
 
 DROP TABLE IF EXISTS `roles`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `roles` (
   `role_id` int NOT NULL AUTO_INCREMENT,
   `role_name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -668,15 +479,9 @@ CREATE TABLE `roles` (
   PRIMARY KEY (`role_id`),
   UNIQUE KEY `role_name` (`role_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `summon`
---
 
 DROP TABLE IF EXISTS `summon`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `summon` (
   `authorization_id` bigint NOT NULL,
   `MLEF_number` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -686,15 +491,9 @@ CREATE TABLE `summon` (
   PRIMARY KEY (`authorization_id`),
   CONSTRAINT `summon_ibfk_1` FOREIGN KEY (`authorization_id`) REFERENCES `legal_authorizations` (`authorization_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `user_role`
---
 
 DROP TABLE IF EXISTS `user_role`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `user_role` (
   `user_id` bigint NOT NULL,
   `role_id` int NOT NULL,
@@ -703,15 +502,9 @@ CREATE TABLE `user_role` (
   CONSTRAINT `user_role_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   CONSTRAINT `user_role_ibfk_2` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `users`
---
 
 DROP TABLE IF EXISTS `users`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+
 CREATE TABLE `users` (
   `user_id` bigint NOT NULL AUTO_INCREMENT,
   `username` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -728,92 +521,33 @@ CREATE TABLE `users` (
   UNIQUE KEY `uq_users_username` (`username`),
   UNIQUE KEY `uq_users_email_lower` (`email_lower`)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2026-07-23  4:57:02
--- MySQL dump 10.13  Distrib 8.0.46, for Win64 (x86_64)
---
--- Host: localhost    Database: forensic_platform
--- ------------------------------------------------------
--- Server version	8.0.46
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
---
--- Dumping data for table `case_status_lu`
---
 
 LOCK TABLES `case_status_lu` WRITE;
-/*!40000 ALTER TABLE `case_status_lu` DISABLE KEYS */;
-INSERT INTO `case_status_lu` VALUES (1,'open','Open'),(2,'closed','Closed'),(3,'archived','Archived');
-/*!40000 ALTER TABLE `case_status_lu` ENABLE KEYS */;
-UNLOCK TABLES;
 
---
--- Dumping data for table `case_type_lu`
---
+INSERT INTO `case_status_lu` VALUES (1,'open','Open'),(2,'closed','Closed'),(3,'archived','Archived');
+
+UNLOCK TABLES;
 
 LOCK TABLES `case_type_lu` WRITE;
-/*!40000 ALTER TABLE `case_type_lu` DISABLE KEYS */;
-INSERT INTO `case_type_lu` VALUES (1,'forensic','Forensic'),(2,'clinical','Clinical'),(3,'autopsy','Autopsy');
-/*!40000 ALTER TABLE `case_type_lu` ENABLE KEYS */;
-UNLOCK TABLES;
 
---
--- Dumping data for table `document_type_lu`
---
+INSERT INTO `case_type_lu` VALUES (1,'forensic','Forensic'),(2,'clinical','Clinical'),(3,'autopsy','Autopsy');
+
+UNLOCK TABLES;
 
 LOCK TABLES `document_type_lu` WRITE;
-/*!40000 ALTER TABLE `document_type_lu` DISABLE KEYS */;
-INSERT INTO `document_type_lu` VALUES (1,'report','Report'),(2,'investigation','Investigation'),(3,'referral','Referral'),(4,'mlef','MLEF'),(5,'police_request_letter','Police Request Letter'),(6,'court_order','Court Order'),(7,'referral_letter','Referral Letter'),(8,'doctor_copy_of_mlef','Doctor Copy of MLEF'),(9,'bht_extract','BHT Extract'),(10,'x_ray_report','X-ray Report'),(11,'ct_scan_report','CT Scan Report'),(12,'toxicology_report','Toxicology Report'),(13,'dna_report','DNA Report'),(14,'laboratory_report','Laboratory Report'),(15,'specialist_referral_report','Specialist Referral Report'),(16,'clinical_photograph','Clinical Photograph'),(17,'body_diagram','Body Diagram'),(18,'medico_legal_report__mlr_','Medico-Legal Report (MLR)'),(19,'court_summons','Court Summons'),(20,'supplementary_report','Supplementary Report'),(21,'certificate_of_receipt','Certificate of Receipt'),(22,'inquest_order','Inquest Order'),(23,'crime_scene_report','Crime Scene Report'),(24,'bed_head_ticket__bht_','Bed Head Ticket (BHT)'),(25,'hospital_record','Hospital Record'),(26,'witness_statement','Witness Statement'),(27,'family_statement','Family Statement'),(28,'police_statement','Police Statement'),(29,'postmortem_report__pmr_','Postmortem Report (PMR)'),(30,'autopsy_notes','Autopsy Notes'),(31,'histopathology_report','Histopathology Report'),(32,'radiology_report','Radiology Report'),(33,'crime_scene_photograph','Crime Scene Photograph'),(34,'postmortem_photograph','Postmortem Photograph'),(35,'cause_of_death_form','Cause of Death Form');
-/*!40000 ALTER TABLE `document_type_lu` ENABLE KEYS */;
-UNLOCK TABLES;
 
---
--- Dumping data for table `media_type_lu`
---
+INSERT INTO `document_type_lu` VALUES (1,'report','Report'),(2,'investigation','Investigation'),(3,'referral','Referral'),(4,'mlef','MLEF'),(5,'police_request_letter','Police Request Letter'),(6,'court_order','Court Order'),(7,'referral_letter','Referral Letter'),(8,'doctor_copy_of_mlef','Doctor Copy of MLEF'),(9,'bht_extract','BHT Extract'),(10,'x_ray_report','X-ray Report'),(11,'ct_scan_report','CT Scan Report'),(12,'toxicology_report','Toxicology Report'),(13,'dna_report','DNA Report'),(14,'laboratory_report','Laboratory Report'),(15,'specialist_referral_report','Specialist Referral Report'),(16,'clinical_photograph','Clinical Photograph'),(17,'body_diagram','Body Diagram'),(18,'medico_legal_report__mlr_','Medico-Legal Report (MLR)'),(19,'court_summons','Court Summons'),(20,'supplementary_report','Supplementary Report'),(21,'certificate_of_receipt','Certificate of Receipt'),(22,'inquest_order','Inquest Order'),(23,'crime_scene_report','Crime Scene Report'),(24,'bed_head_ticket__bht_','Bed Head Ticket (BHT)'),(25,'hospital_record','Hospital Record'),(26,'witness_statement','Witness Statement'),(27,'family_statement','Family Statement'),(28,'police_statement','Police Statement'),(29,'postmortem_report__pmr_','Postmortem Report (PMR)'),(30,'autopsy_notes','Autopsy Notes'),(31,'histopathology_report','Histopathology Report'),(32,'radiology_report','Radiology Report'),(33,'crime_scene_photograph','Crime Scene Photograph'),(34,'postmortem_photograph','Postmortem Photograph'),(35,'cause_of_death_form','Cause of Death Form');
+
+UNLOCK TABLES;
 
 LOCK TABLES `media_type_lu` WRITE;
-/*!40000 ALTER TABLE `media_type_lu` DISABLE KEYS */;
-INSERT INTO `media_type_lu` VALUES (1,'image','Image'),(2,'video','Video'),(3,'audio','Audio');
-/*!40000 ALTER TABLE `media_type_lu` ENABLE KEYS */;
-UNLOCK TABLES;
 
---
--- Dumping data for table `notification_priority_lu`
---
+INSERT INTO `media_type_lu` VALUES (1,'image','Image'),(2,'video','Video'),(3,'audio','Audio');
+
+UNLOCK TABLES;
 
 LOCK TABLES `notification_priority_lu` WRITE;
-/*!40000 ALTER TABLE `notification_priority_lu` DISABLE KEYS */;
+
 INSERT INTO `notification_priority_lu` VALUES (1,'low','Low'),(2,'normal','Normal'),(3,'high','High');
-/*!40000 ALTER TABLE `notification_priority_lu` ENABLE KEYS */;
+
 UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2026-07-23  4:57:13
