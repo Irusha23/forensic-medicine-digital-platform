@@ -1,3 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
 CREATE DATABASE IF NOT EXISTS forensic_platform CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_unicode_ci';
 USE forensic_platform;
 
@@ -551,3 +552,7 @@ LOCK TABLES `notification_priority_lu` WRITE;
 INSERT INTO `notification_priority_lu` VALUES (1,'low','Low'),(2,'normal','Normal'),(3,'high','High');
 
 UNLOCK TABLES;
+
+
+
+SET FOREIGN_KEY_CHECKS=1;
