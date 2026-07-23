@@ -30,7 +30,7 @@ export const getPatients = async (req: Request, res: Response) => {
         gender: p.gender,
         address: p.address,
         telephone: p.telephone,
-        case_type: latestCase?.case_type_lu?.case_type_name || 'Unknown',
+        case_type: latestCase?.case_type_lu?.label || 'Unknown',
         case_id: latestCase?.case_id?.toString(),
         case_number: latestCase?.case_number
       };

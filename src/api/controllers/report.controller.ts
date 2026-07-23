@@ -18,9 +18,9 @@ export async function generateReportController(req: Request, res: Response) {
       : Buffer.from(result.pdfBuffer as any);
       
     // Log report download
-    const userId = req.user?.user_id;
+    const userId = (req as any).user?.userId || (req as any).user?.user_id;
     if (userId) {
-      await logAudit(userId, 'REPORT_DOWNLOAD', 'report', result.report.report_id, { caseId: id, reportType }, req.ip);
+      await logAudit(userId, 'REPORT_DOWNLOAD', 'case', id, { reportType: result.reportType }, req.ip);
     }
 
     res.setHeader('Content-Type', 'application/pdf');
