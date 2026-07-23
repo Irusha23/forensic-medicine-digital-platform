@@ -20,6 +20,35 @@ Data integrity is handled entirely at the database level rather than application
 
 When exploring the schema, we recommend reviewing the following specific implementations of advanced database design patterns:
 
+### 2.0 Core Entity-Relationship Visualization
+To understand the structural inheritance and normalization, please refer to the following ERD highlighting the core case management workflow:
+
+```mermaid
+erDiagram
+    cases ||--o| clinical_case : "extends (1:1)"
+    cases ||--o| autopsy_case : "extends (1:1)"
+    cases }o--|| patients : "belongs to"
+    cases }o--o| users : "assigned to"
+    cases }o--o| police_stations : "linked to"
+
+    cases {
+        BigInt case_id PK
+        String case_number UK
+        Int case_type_id FK
+        BigInt patient_id FK
+    }
+    clinical_case {
+        BigInt case_id PK, FK
+        String clinical_category
+        String provisional_diagnosis
+    }
+    autopsy_case {
+        BigInt case_id PK, FK
+        String postmortem_number
+        String manner_of_death
+    }
+```
+
 ### 2.1 Entity Subtyping (Inheritance)
 To prevent nullable sprawl caused by divergent entity properties, the database uses **Class Table Inheritance (Subtyping)** via 1:1 foreign key relationships acting as primary keys.
 
@@ -39,6 +68,19 @@ User privileges are strictly isolated using a standard many-to-many resolution p
 ### 2.4 Lookup Tables (Domain Constraints)
 To enforce domain integrity and prevent data anomalies caused by string typos, static categories are normalized into distinct Lookup (`_lu`) tables:
 * Review `case_status_lu`, `case_type_lu`, `document_type_lu`, and `media_type_lu`. These act as canonical dictionaries for foreign key references.
+
+### 2.5 Normalization (3NF / BCNF)
+The database rigorously adheres to the Third Normal Form (3NF) and Boyce-Codd Normal Form (BCNF) principles to eliminate data redundancy and insertion/deletion anomalies:
+* **Patient Demographics:** Extracted into the `patients` table. Multiple `cases` can reference a single `patient_id` without duplicating names, NICs, or addresses.
+* **Transitive Dependencies Removed:** The `cases` table only holds the `police_station_id`, mapping to the `police_stations` table where the station's district and contact numbers are stored, preventing update anomalies if a station's phone number changes.
+
+### 2.6 Indexing Strategy for Query Optimization
+To optimize query execution plans, B-Tree indexes have been strategically applied beyond the default Primary Key indexes:
+* **Foreign Key Indexing:** Every FK column (e.g., `case_id` in `evidence`, `assigned_doctor_id` in `cases`) has an explicit `@@index` to ensure that `JOIN` operations and cascading deletes execute in logarithmic `O(log n)` time rather than triggering full table scans.
+* **Composite Indexes:** Read-heavy analytics patterns are optimized using composite indexes, such as `@@index([status, created_at])` in the `cases` table, which significantly speeds up the generation of the monthly and daily aggregate reports.
+
+### 2.7 Data Security at Rest
+* **Credential Hashing:** The `users` table utilizes a `password_hash` column mapped to `VARCHAR(255)`, strictly storing bcrypt-salted hashes rather than plaintext passwords to protect access to sensitive medical data.
 
 ---
 
