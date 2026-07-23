@@ -1,0 +1,93 @@
+================================================================================
+FORENSIC MEDICINE DIGITAL PLATFORM - SYSTEM RUN GUIDE
+================================================================================
+
+This document provides a step-by-step guide to setting up and running the entire 
+system locally, including the Backend (Node.js/Express) and Frontend (React/Vite), 
+as well as a troubleshooting guide for common database errors.
+
+--------------------------------------------------------------------------------
+PREREQUISITES
+--------------------------------------------------------------------------------
+1. Node.js (v18 or higher recommended)
+2. MySQL (running locally on port 3306)
+3. A root `.env` file containing your DATABASE_URL (e.g., DATABASE_URL="mysql://root:password@localhost:3306/forensic_platform")
+
+--------------------------------------------------------------------------------
+PART 1: RUNNING THE BACKEND API
+--------------------------------------------------------------------------------
+Open a terminal in the root directory of the project (where this file is located).
+
+1. Install backend dependencies:
+   npm install
+
+2. Generate the Prisma Client (required for database queries):
+   npx prisma generate
+
+3. Sync your database schema:
+   npx prisma db push
+   (Note: This will ensure your MySQL database matches the Prisma schema)
+
+4. Seed the database with default roles, categories, and test users:
+   npm run seed
+
+5. Start the backend development server:
+   npm run dev
+
+   -> You should see "Server listening on http://127.0.0.1:4000"
+
+--------------------------------------------------------------------------------
+PART 2: RUNNING THE FRONTEND (REACT UI)
+--------------------------------------------------------------------------------
+Open a NEW separate terminal window.
+
+1. Navigate to the frontend directory:
+   cd frontend
+
+2. Install frontend dependencies:
+   npm install
+
+3. Start the frontend development server:
+   npm run dev
+
+   -> You should see "VITE ready in ... ms"
+   -> The application will be accessible at http://localhost:5173/
+
+--------------------------------------------------------------------------------
+PART 3: TROUBLESHOOTING & COMMON COMMANDS
+--------------------------------------------------------------------------------
+
+ISSUE 1: "Prisma Client is not generated" or "Cannot find module '@prisma/client'"
+Fix: Run the following command in the root folder:
+   npx prisma generate
+
+ISSUE 2: The Database schema is out of sync or throwing "Foreign Key Constraint" errors
+Fix: You can force a complete reset of the database. WARNING: This wipes all data!
+   npx prisma db push --force-reset
+   npm run seed
+
+ISSUE 3: "Port 4000 is already in use" or "Port 5173 is already in use"
+Fix: This means a previous instance of the server is still running. You need to 
+stop it (CTRL+C) or kill the Node process in your task manager before running 
+`npm run dev` again.
+
+ISSUE 4: Email Authentication Errors in the Backend terminal
+Fix: The system uses nodemailer. If you see "Error: Invalid login: 535 Authentication failed", 
+it just means the mock email server credentials in your .env are missing or incorrect. 
+This will NOT crash the system; the system will simply log the error and continue.
+
+ISSUE 5: Missing Node Modules (Commands not recognized)
+Fix: If a package is missing, delete the `node_modules` folder and reinstall:
+   (In root folder or frontend folder)
+   rm -rf node_modules
+   npm install
+
+--------------------------------------------------------------------------------
+DEFAULT LOGIN CREDENTIALS
+--------------------------------------------------------------------------------
+Once the system is running, use these credentials to log in:
+- Admin:   admin / adminpass
+- Doctor:  doctor / doctorpass
+- Clerk:   clerk / clerkpass
+- JMO:     jmo / jmopass
+================================================================================
