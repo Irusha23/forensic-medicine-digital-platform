@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import api from '../api/client';
+import { AggregateReportModal } from '../components/common/AggregateReportModal';
 
 export const Dashboard = () => {
   const [cases, setCases] = useState<any[]>([]);
   const [metrics, setMetrics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [caseTypes, setCaseTypes] = useState<string[]>([]);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   // Advanced Filters
   const [advFilters, setAdvFilters] = useState({
@@ -83,9 +85,17 @@ export const Dashboard = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Analytics Dashboard</h1>
-        <Link to="/cases/new" className="bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 rounded shadow">
-          Create New Case
-        </Link>
+        <div className="flex space-x-3">
+          <button 
+            onClick={() => setShowReportModal(true)}
+            className="bg-gray-100 text-gray-800 border border-gray-300 px-4 py-2 hover:bg-gray-200 rounded shadow font-medium"
+          >
+            Generate Reports
+          </button>
+          <Link to="/cases/new" className="bg-blue-600 text-white px-4 py-2 hover:bg-blue-700 rounded shadow font-medium">
+            Create New Case
+          </Link>
+        </div>
       </div>
 
       {/* Metric Cards */}
@@ -280,6 +290,10 @@ export const Dashboard = () => {
           </tbody>
         </table>
       </div>
+
+      {showReportModal && (
+        <AggregateReportModal onClose={() => setShowReportModal(false)} />
+      )}
     </div>
   );
 };

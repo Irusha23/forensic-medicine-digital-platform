@@ -12,8 +12,8 @@ export const CaseInfo = ({ caseData, onUpdate }: { caseData: any, onUpdate: () =
   const fetchDoctors = async () => {
     try {
       const res = await api.get('/users');
-      // Filter users who have the 'Doctor' role
-      const docs = res.data.filter((u: any) => u.roles && u.roles.includes('Doctor') && u.is_active);
+      // Filter users who have the 'Doctor' or 'JMO' role
+      const docs = res.data.filter((u: any) => u.roles && (u.roles.includes('Doctor') || u.roles.includes('JMO')) && u.is_active);
       setDoctors(docs);
     } catch (err) {
       console.error('Failed to fetch doctors', err);

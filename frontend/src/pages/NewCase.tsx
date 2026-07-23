@@ -13,8 +13,9 @@ export const NewCase = () => {
   const [error, setError] = useState('');
 
   const fetchDoctors = async (query: string) => {
-    const res = await api.get('/users?role=Doctor');
+    const res = await api.get('/users');
     const filtered = res.data.filter((d: any) => 
+      d.roles && (d.roles.includes('Doctor') || d.roles.includes('JMO')) && d.is_active &&
       `${d.first_name} ${d.last_name} ${d.designation || ''}`.toLowerCase().includes(query.toLowerCase())
     );
     return filtered.map((d: any) => ({
