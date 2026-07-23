@@ -12,6 +12,12 @@ jest.mock('../lib/prisma', () => ({
     },
     case_type_lu: {
       findMany: jest.fn()
+    },
+    investigation: {
+      count: jest.fn().mockResolvedValue(0)
+    },
+    audit_log: {
+      create: jest.fn().mockResolvedValue({})
     }
   }
 }));
@@ -52,7 +58,7 @@ describe('Dashboard API endpoints', () => {
         .set('Authorization', 'Bearer fake-token');
       
       expect(res.status).toBe(200);
-      expect(res.body.summary).toEqual({ totalCases: 10, openCases: 6, closedCases: 4 });
+      expect(res.body.summary).toEqual({ totalCases: 10, openCases: 6, closedCases: 4, pendingInvestigations: 0, pendingReports: undefined });
       expect(res.body.statusDistribution).toEqual([
         { name: 'OPEN', value: 6 },
         { name: 'CLOSED', value: 4 }

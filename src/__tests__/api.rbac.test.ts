@@ -5,6 +5,7 @@ import * as authService from '../services/auth.service';
 
 describe('Strict Backend RBAC Enforcement', () => {
   let createdCaseId: bigint;
+  let testUserId = 1; // Fallback to 1 if no users exist
 
   beforeAll(async () => {
     // Create a real case to attempt to delete
@@ -15,6 +16,12 @@ describe('Strict Backend RBAC Enforcement', () => {
       }
     });
     createdCaseId = newCase.case_id;
+    
+    // Find a valid user to satisfy audit_log foreign key constraint
+    const user = await prisma.users.findFirst();
+    if (user) {
+      testUserId = Number(user.user_id);
+    }
   });
 
   afterAll(async () => {
@@ -25,7 +32,7 @@ describe('Strict Backend RBAC Enforcement', () => {
 
   it('should violently reject DELETE /api/cases/:id if the user only has the Clerk role', async () => {
     // Mock the token verification to return ONLY the Clerk role
-    jest.spyOn(authService, 'verifyToken').mockReturnValue({ userId: 999, roles: ['Clerk'] });
+    jest.spyOn(authService, 'verifyToken').mockReturnValue({ userId: testUserId, roles: ['Clerk'] });
 
     const res = await request(app)
       .delete(`/api/cases/${createdCaseId}`)
@@ -45,7 +52,7 @@ describe('Strict Backend RBAC Enforcement', () => {
   
   it('should allow DELETE /api/cases/:id if the user has the Admin role', async () => {
     // Mock the token verification to return the Admin role
-    jest.spyOn(authService, 'verifyToken').mockReturnValue({ userId: 999, roles: ['Admin'] });
+    jest.spyOn(authService, 'verifyToken').mockReturnValue({ userId: testUserId, roles: ['Admin'] });
 
     const res = await request(app)
       .delete(`/api/cases/${createdCaseId}`)

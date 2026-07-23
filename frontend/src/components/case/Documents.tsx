@@ -88,8 +88,15 @@ export const Documents = ({ caseId }: { caseId: string }) => {
             <input required type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="p-2 border border-gray-300 rounded text-sm w-full" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Document Type *</label>
-            <input required type="text" value={documentType} onChange={(e) => setDocumentType(e.target.value)} className="p-2 border border-gray-300 rounded text-sm w-full" placeholder="e.g. MLEF, Analyst Report" />
+            <label className="block text-xs font-medium text-gray-600 mb-1" htmlFor="documentCategory">Document Category *</label>
+            <select id="documentCategory" data-testid="document-category-select" required value={documentType} onChange={(e) => setDocumentType(e.target.value)} className="p-2 border border-gray-300 rounded text-sm w-full">
+              <option value="">Select a category</option>
+              <option value="MLEF">MLEF</option>
+              <option value="Analyst Report">Analyst Report</option>
+              <option value="Medical Records">Medical Records</option>
+              <option value="Court Order">Court Order</option>
+              <option value="Other">Other</option>
+            </select>
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">Issuing Authority</label>
@@ -117,41 +124,51 @@ export const Documents = ({ caseId }: { caseId: string }) => {
         </button>
       </form>
 
-      <table className="w-full text-left border-collapse text-sm border border-gray-300">
-        <thead>
-          <tr className="bg-gray-100 border-b border-gray-300">
-            <th className="p-2 border-r border-gray-300">Title</th>
-            <th className="p-2 border-r border-gray-300">Type</th>
-            <th className="p-2 border-r border-gray-300 hidden md:table-cell">Issuing Authority</th>
-            <th className="p-2 border-r border-gray-300 hidden md:table-cell">Received</th>
-            <th className="p-2 border-r border-gray-300">Filename</th>
-            <th className="p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {documents.length === 0 ? (
-            <tr><td colSpan={4} className="p-4 text-center text-gray-500">No documents attached to this case.</td></tr>
-          ) : (
-            documents.map((d: any) => (
-              <tr key={d.document_id} className="border-b border-gray-200 hover:bg-gray-50">
-                <td className="p-2 border-r border-gray-300 font-semibold">{d.title || 'Untitled'}</td>
-                <td className="p-2 border-r border-gray-300">{d.document_type || 'File'}</td>
-                <td className="p-2 border-r border-gray-300 hidden md:table-cell">{d.issuing_authority || '-'}</td>
-                <td className="p-2 border-r border-gray-300 hidden md:table-cell">{d.date_received ? new Date(d.date_received).toLocaleDateString() : '-'}</td>
-                <td className="p-2 border-r border-gray-300 font-mono text-xs">{d.file_path ? d.file_path.split('/').pop() : 'Unknown'}</td>
-                <td className="p-2">
-                  <button 
-                    onClick={() => handleDownload(d.document_id, d.file_path ? d.file_path.split('/').pop() : 'download')}
-                    className="text-blue-600 hover:underline text-sm"
-                  >
-                    Download
-                  </button>
-                </td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+      {documents.length === 0 ? (
+        <div className="p-4 text-center text-gray-500 border border-gray-300 rounded">No documents attached to this case.</div>
+      ) : (
+        Object.entries(
+          documents.reduce((acc: any, doc: any) => {
+            const type = doc.document_type || 'Other';
+            if (!acc[type]) acc[type] = [];
+            acc[type].push(doc);
+            return acc;
+          }, {})
+        ).map(([category, docs]: [string, any]) => (
+          <div key={category} className="mb-6">
+            <h3 className="text-lg font-semibold mb-2 bg-gray-100 p-2 rounded">{category}</h3>
+            <table className="w-full text-left border-collapse text-sm border border-gray-300">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-300">
+                  <th className="p-2 border-r border-gray-300">Title</th>
+                  <th className="p-2 border-r border-gray-300 hidden md:table-cell">Issuing Authority</th>
+                  <th className="p-2 border-r border-gray-300 hidden md:table-cell">Received</th>
+                  <th className="p-2 border-r border-gray-300">Filename</th>
+                  <th className="p-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {docs.map((d: any) => (
+                  <tr key={d.document_id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="p-2 border-r border-gray-300 font-semibold">{d.title || 'Untitled'}</td>
+                    <td className="p-2 border-r border-gray-300 hidden md:table-cell">{d.issuing_authority || '-'}</td>
+                    <td className="p-2 border-r border-gray-300 hidden md:table-cell">{d.date_received ? new Date(d.date_received).toLocaleDateString() : '-'}</td>
+                    <td className="p-2 border-r border-gray-300 font-mono text-xs">{d.file_path ? d.file_path.split('/').pop() : 'Unknown'}</td>
+                    <td className="p-2">
+                      <button 
+                        onClick={() => handleDownload(d.document_id, d.file_path ? d.file_path.split('/').pop() : 'download')}
+                        className="text-blue-600 hover:underline text-sm"
+                      >
+                        Download
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))
+      )}
     </div>
   );
 };

@@ -117,7 +117,7 @@ test.describe('Case Management Flow', () => {
           await route.fulfill({ 
             status: 200, 
             contentType: 'application/json', 
-            body: JSON.stringify([{ media_id: '99', file_path: 'uploads/fake-report.pdf', category: 'MLEF', description: 'Test description' }]) 
+            body: JSON.stringify([{ media_id: '99', file_path: 'uploads/fake-photo.jpg', category: 'Photographs', description: 'Test description' }]) 
           });
         }
       } else if (route.request().method() === 'POST') {
@@ -141,17 +141,17 @@ test.describe('Case Management Flow', () => {
     // Verify Clinical categories are available
     const categorySelect = page.getByTestId('document-category-select');
     await expect(categorySelect).toBeVisible();
-    await expect(categorySelect).toContainText('MLEF');
     await expect(categorySelect).toContainText('Photographs');
+    await expect(categorySelect).toContainText('Videos');
 
     // Select category and description
-    await categorySelect.selectOption('MLEF');
+    await categorySelect.selectOption('Photographs');
     await page.getByTestId('document-description-input').fill('Test description');
 
     // Upload a mock file
     await page.getByTestId('document-file-input').setInputFiles({
-      name: 'fake-report.pdf',
-      mimeType: 'application/pdf',
+      name: 'fake-photo.jpg',
+      mimeType: 'image/jpeg',
       buffer: Buffer.from('fake pdf content')
     });
 
@@ -163,10 +163,10 @@ test.describe('Case Management Flow', () => {
     // Wait for the media list to re-fetch and render
     await page.waitForResponse(res => res.url().includes('/api/cases/2/media') && res.request().method() === 'GET');
 
-    // Assert that the file appears in the MLEF section
-    const mlefSection = page.getByTestId('category-section-MLEF');
-    await expect(mlefSection).toBeVisible();
-    await expect(mlefSection.getByTestId('filename-99')).toHaveText('fake-report.pdf');
-    await expect(mlefSection).toContainText('Test description');
+    // Assert that the file appears in the Photographs section
+    const photoSection = page.getByTestId('category-section-Photographs');
+    await expect(photoSection).toBeVisible();
+    await expect(photoSection.getByTestId('filename-99')).toHaveText('fake-photo.jpg');
+    await expect(photoSection).toContainText('Test description');
   });
 });

@@ -6,9 +6,15 @@ import * as authService from '../services/auth.service';
 jest.mock('../lib/prisma', () => ({
   __esModule: true,
   default: {
-    subject: {
-      findMany: jest.fn().mockResolvedValue([{ subject_id: BigInt(1), full_name: 'John Doe', subject_type: 'Victim' }]),
-      create: jest.fn().mockResolvedValue({ subject_id: BigInt(2), full_name: 'Jane Doe' }),
+    patients: {
+      create: jest.fn().mockResolvedValue({ patient_id: BigInt(2), full_name: 'Jane Doe' }),
+    },
+    cases: {
+      findUnique: jest.fn().mockResolvedValue({ 
+        case_id: BigInt(1), 
+        patients: { patient_id: BigInt(1), full_name: 'John Doe', gender: 'Male' } 
+      }),
+      update: jest.fn().mockResolvedValue({})
     }
   }
 }));
@@ -26,8 +32,9 @@ describe('Case Subjects API endpoints', () => {
     it('should list subjects for a case', async () => {
       const res = await request(app).get('/api/cases/1/subjects').set('Authorization', 'Bearer fake-token');
       expect(res.status).toBe(200);
-      expect(prisma.subject.findMany).toHaveBeenCalledWith({
-        where: { case_id: BigInt(1) }
+      expect(prisma.cases.findUnique).toHaveBeenCalledWith({
+        where: { case_id: BigInt(1) },
+        include: { patients: true }
       });
     });
 
@@ -35,7 +42,8 @@ describe('Case Subjects API endpoints', () => {
       const payload = {
         subject_type: 'Victim',
         full_name: 'Jane Doe',
-        nic: '123456789V'
+        nic: '123456789V',
+        case_id: 1
       };
       const res = await request(app)
         .post('/api/cases/1/subjects')
@@ -43,11 +51,10 @@ describe('Case Subjects API endpoints', () => {
         .send(payload);
       
       expect(res.status).toBe(201);
-      expect(prisma.subject.create).toHaveBeenCalledWith(expect.objectContaining({
+      expect(prisma.patients.create).toHaveBeenCalledWith(expect.objectContaining({
         data: expect.objectContaining({
-          case_id: BigInt(1),
-          subject_type: 'Victim',
-          full_name: 'Jane Doe'
+          full_name: 'Jane Doe',
+          nic: '123456789V'
         })
       }));
     });

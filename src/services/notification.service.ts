@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 // Avoid connection errors if credentials are the default mock ones
 if (!process.env.SMTP_USER) {
   // Use a stub transport for development when no real credentials exist
-  transporter.sendMail = async (mailOptions) => {
+  (transporter as any).sendMail = async (mailOptions: any) => {
     console.log(`[Mock Email Stub] Would have sent email to ${mailOptions.to} with subject: ${mailOptions.subject}`);
     return { messageId: 'mock-id' };
   };

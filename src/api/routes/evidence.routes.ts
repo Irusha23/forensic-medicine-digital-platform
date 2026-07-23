@@ -32,16 +32,15 @@ router.post('/cases/:id/evidence', authenticateJWT, [
 ], validateRequest, async (req: any, res: any) => {
   try {
     const caseId = BigInt(req.params.id);
-    const newEvidence = await prisma.evidence.create({
-      data: {
-        case_id: caseId,
-        item_name: req.body.item_name,
-        description: req.body.description,
-        collected_at: req.body.collected_at ? new Date(req.body.collected_at) : new Date(),
-        collected_by: req.user?.userId ? BigInt(req.user.userId) : null,
-        storage_location: req.body.storage_location || 'Pending'
-      }
-    });
+      const newEvidence = await prisma.evidence.create({
+        data: {
+          case_id: caseId,
+          evidence_type: req.body.item_name || 'General',
+          description: req.body.description,
+          collection_date: req.body.collected_at ? new Date(req.body.collected_at) : new Date(),
+          storage_location: req.body.storage_location || 'Pending'
+        }
+      });
     res.status(201).json(newEvidence);
   } catch (e: any) {
     res.status(500).json({ error: e.message });

@@ -22,11 +22,12 @@ export function initCronJobs() {
 
       for (const inv of pendingInvs) {
         if (inv.cases?.assigned_doctor_id) {
-          await createNotification(
-            Number(inv.cases.assigned_doctor_id),
-            'INVESTIGATION_DELAYED',
-            `Investigation ID ${inv.investigation_id} for Case ${inv.cases.case_number} is pending for over 14 days.`
-          );
+          await createNotification({
+            receiver_user_id: Number(inv.cases.assigned_doctor_id),
+            notification_type: 'INVESTIGATION_DELAYED',
+            title: 'Investigation Delayed',
+            message: `Investigation ID ${inv.investigation_id} for Case ${inv.cases.case_number} is pending for over 14 days.`
+          });
         }
       }
 
@@ -45,11 +46,12 @@ export function initCronJobs() {
 
       for (const c of delayedCases) {
         if (c.assigned_doctor_id) {
-          await createNotification(
-            Number(c.assigned_doctor_id),
-            'REPORT_DELAYED',
-            `Case ${c.case_number} is open for over 30 days without a report.`
-          );
+          await createNotification({
+            receiver_user_id: Number(c.assigned_doctor_id),
+            notification_type: 'REPORT_DELAYED',
+            title: 'Report Delayed',
+            message: `Case ${c.case_number} is open for over 30 days without a report.`
+          });
         }
       }
       

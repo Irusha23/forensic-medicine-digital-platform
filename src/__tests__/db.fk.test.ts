@@ -25,15 +25,14 @@ describe('Database Constraint Verification (Live DB Test)', () => {
     });
     findingId = newFinding.finding_id;
 
-    // 3. Attach a subject to the case
-    const newSubject = await prisma.subject.create({
+    // 3. Attach a document to the case
+    const newDoc = await prisma.documents.create({
       data: {
         case_id: createdCaseId,
-        subject_type: 'Victim',
-        full_name: 'John Doe FK Test',
+        title: 'Document for FK Test',
       }
     });
-    subjectId = newSubject.subject_id;
+    subjectId = newDoc.document_id;
   });
 
   afterAll(async () => {
@@ -41,7 +40,7 @@ describe('Database Constraint Verification (Live DB Test)', () => {
     await prisma.cases.delete({ where: { case_id: createdCaseId } }).catch(() => {});
   });
 
-  it('should correctly cascade hard deletes from cases to findings and subjects', async () => {
+  it('should correctly cascade hard deletes from cases to findings and documents', async () => {
     // Act: Attempt to hard delete the case
     // The schema defines onDelete: Cascade for both relations.
     // If MySQL has the correct FK constraints, it should delete child records and not throw an error.
@@ -61,10 +60,10 @@ describe('Database Constraint Verification (Live DB Test)', () => {
     });
     expect(orphanedFinding).toBeNull(); // It should NOT exist as an orphan
 
-    // Assert: The attached subject should be cascaded (gone)
-    const orphanedSubject = await prisma.subject.findUnique({
-      where: { subject_id: subjectId }
+    // Assert: The attached document should be cascaded (gone)
+    const orphanedDoc = await prisma.documents.findUnique({
+      where: { document_id: subjectId }
     });
-    expect(orphanedSubject).toBeNull(); // It should NOT exist as an orphan
+    expect(orphanedDoc).toBeNull(); // It should NOT exist as an orphan
   });
 });
